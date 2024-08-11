@@ -15,15 +15,10 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
+@import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
 }
 
 @layer utilities {
@@ -31,3 +26,52 @@ body {
     text-wrap: balance;
   }
 }
+
+/* global.css */
+
+.light-effect {
+  position: relative;
+}
+
+.light-effect::before,
+.light-effect::after {
+  content: '';
+  position: absolute;
+  top: 10rem;
+  width: 330px;
+  height: 330px; 
+  border-radius: 50%;
+  background: #7457EE;
+  filter: blur(140px); 
+  z-index: -1;
+}
+
+.light-effect::before {
+  left: -100px; 
+}
+
+.light-effect::after {
+  right: -100px; 
+}
+/*  */
+.light-effect-l {
+  position: relative;
+}
+
+.light-effect-l::before{
+  content: '';
+  position: absolute;
+  top: 10rem;
+  width: 330px;
+  height: 330px; 
+  border-radius: 50%;
+  background: #7457EE;
+  filter: blur(140px); 
+  z-index: -1;
+}
+
+.light-effect-l::before {
+  left: -100px; 
+}
+
+
