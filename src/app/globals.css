@@ -16,6 +16,8 @@
   }
 }
 @import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alata&display=swap');
+
 
 body {
   color: rgb(var(--foreground-rgb));
@@ -75,3 +77,20 @@ body {
 }
 
 
+.dark-scrollbar::-webkit-scrollbar {
+  width: 12px; /* Adjust the width as needed */
+}
+
+.dark-scrollbar::-webkit-scrollbar-track {
+  background: #010027; /* Background color of the scrollbar track */
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #120d44; /* Color of the scroll thumb */
+  border-radius: 10px; /* Rounded edges */
+  border: 3px solid #010027; /* Gives a smooth, borderless look by matching track background */
+}
+
+.dark-scrollbar::-webkit-scrollbar-button {
+  display: none; /* Hide the up and down arrows */
+}

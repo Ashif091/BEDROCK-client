@@ -1,23 +1,110 @@
 "use client"
 import React, {useEffect, useState} from "react"
 import Image from "next/image"
-import Logo from "../../../../public/logo.png"
+import Logo from "../../../../public/logo-dark.png"
 import grap_img from "../../../../public/gaph3d.png"
-// import GithubLight from "../../../../public/other/github.png";
-// import GithubDark from "../../../../public/other/githubDark.png";
-// import Google from "../../../../public/other/google.png";
-import axios from "axios"
+import {loginSchema, LoginFormData} from "@/Types/Schema"
+import {useAuthStore} from "@/stores/authStore"
+
+import nonAuth from "../../../components/hoc/nonAuth"
+import {useForm} from "react-hook-form"
+import {zodResolver} from "@hookform/resolvers/zod"
 import Link from "next/link"
+import {Toaster, toast} from "sonner"
+import axios from "axios"
+import {useRouter} from "next/navigation"
+
+const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
 
 const LoginPage = () => {
+  const login = useAuthStore((state) => state.login)
+  const accessToken = useAuthStore((state) => state.accessToken)
   const [mounted, setMounted] = useState(false)
+  const router = useRouter()
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: {errors},
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  })
+
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/auth/login`, data, {
+        withCredentials: true,
+      })
+      if (response) {
+        toast.success("login successfull", {
+          position: "top-center",
+        })
+        if (response.data.accessToken) {
+          login(response.data.accessToken)
+        }
+        router.push("/workspace")
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(error.response.data.error, {
+          position: "top-left",
+        })
+        console.log("error in post ", error.response.data.error)
+      } else {
+        console.log("An unexpected error occurred:", error)
+      }
+    } finally {
+      reset()
+    }
+  }
+
+  const onclick = async () => {
+    console.log(" onclick activated")
+
+    try {
+      const response = await axios.get(`${BASE_URL}/auth/token-check`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      if (response) {
+        toast.success("data get", {
+          position: "top-center",
+        })
+        console.log("data of req", response)
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(error.response.data.error, {
+          position: "top-left",
+        })
+        console.log("error in post ", error.response.data.error)
+      } else {
+        console.log("An unexpected error occurred:", error)
+      }
+    }
+  }
+
   useEffect(() => {
     setMounted(true)
   }, [])
+  useEffect(() => {
+    console.log(Object.values(errors))
+
+    if (Object.keys(errors).length > 0) {
+      Object.values(errors).forEach((error) => {
+        if (error && error.message) {
+          toast.error(error.message, {position: "top-left"})
+        }
+      })
+    }
+  }, [errors])
+
   if (!mounted) {
     return null
   }
-
   return (
     <section className="sm:flex justify-center fixed h-screen   w-full light-effect-l">
       <div
@@ -56,19 +143,27 @@ const LoginPage = () => {
         </div>
       </div>
       <div className="sm:w-1/2 text-center flex flex-col justify-center items-center select-none">
-        <h2 className="md:text-4xl mb-5 text-3xl font-light">Sign In</h2>
+        <h2
+          className="md:text-4xl mb-5 text-3xl font-light"
+          onClick={() => onclick()}
+        >
+          Sign In
+        </h2>
 
-        <form className="space-y-4 sm:w-3/5 w-3/4 text-start">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 sm:w-3/5 w-3/4 text-start"
+        >
           <div>
             <label htmlFor="email" className=" dark:text-gray-200 text-lg">
               Email
             </label>
             <input
               id="email"
-              className="border bg-transparent dark:border-gray-700 p-3 placeholder:text-base border-gray-300 rounded-lg w-full focus:outline-gray-800 "
+              {...register("email")}
+              className="border bg-transparent dark:border-gray-700 p-3 placeholder:text-base border-gray-300 rounded-lg w-full focus:border-[#7457ec] focus:outline-none focus:ring-1 focus:ring-[#7457ec]  "
               type="email"
               placeholder="Email"
-              required
             />
           </div>
           <div>
@@ -79,37 +174,17 @@ const LoginPage = () => {
               Password
             </label>
             <input
+              {...register("password")}
               id="password"
-              className="border bg-transparent dark:border-gray-700 p-3 mb-2 placeholder:text-base border-gray-300 rounded-lg w-full "
+              className="border bg-transparent dark:border-gray-700 p-3 mb-2 placeholder:text-base border-gray-300 rounded-lg w-full focus:border-[#7457ec] focus:outline-none focus:ring-1 focus:ring-[#7457ec]  "
               type="password"
               placeholder="Password"
-              required
             />
           </div>
 
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-[#7457ee] h-12"
-          >
+          <button type="submit" className="w-full rounded-lg bg-[#7457ee] h-12">
             Sign In
           </button>
-          {/* <div className="md:mt-3 ">
-              <p>Or continue with</p>
-              <div className="flex gap-4 mt-3 justify-center">
-                <Image
-                  onClick={handleGoogleSignIn}
-                  src={Google}
-                  alt="Google"
-                  className="cursor-pointer w-9 h-9"
-                />
-                <Image
-                  onClick={handleGithubSignIn}
-                  src={Github}
-                  alt="GitHUb"
-                  className="cursor-pointer w-9 h-9"
-                />
-              </div>
-            </div> */}
         </form>
       </div>
       <div className="absolute inset-0 flex items-center justify-center -z-10 ">
@@ -120,13 +195,9 @@ const LoginPage = () => {
           className="opacity-35 object-cover mr-[5rem] mt-14"
         />
       </div>
-      {/* <Image
-        src={Saly}
-        alt="Saly"  
-        className="hidden lg:block -z-50 absolute -bottom-10 "
-      /> */}
+      <Toaster />
     </section>
   )
 }
 
-export default LoginPage
+export default nonAuth(LoginPage) 

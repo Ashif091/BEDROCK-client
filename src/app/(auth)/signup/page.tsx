@@ -1,19 +1,67 @@
 "use client"
 import React, {useEffect, useState} from "react"
 import Image from "next/image"
-import Logo from "../../../../public/logo.png"
+import Logo from "../../../../public/logo-dark.png"
 import grap_img from "../../../../public/gaph3d.png"
-// import GithubLight from "../../../../public/other/github.png";
-// import GithubDark from "../../../../public/other/githubDark.png";
-// import Google from "../../../../public/other/google.png";
+import nonAuth from "../../../components/hoc/nonAuth"
+import {useRouter} from "next/navigation"
+import {useForm} from "react-hook-form"
+import {zodResolver} from "@hookform/resolvers/zod"
+import {z} from "zod"
+import { Toaster, toast } from 'sonner';
 import axios from "axios"
 import Link from "next/link"
-
+import {signUpSchema} from "@/Types/Schema"
+const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
 const signupPage = () => {
   const [mounted, setMounted] = useState(false)
+  
+  const router = useRouter()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: {errors},
+  } = useForm<z.infer<typeof signUpSchema>>({
+    resolver: zodResolver(signUpSchema),
+  })
+
+  async function onSubmit(values: z.infer<typeof signUpSchema>) {
+    try {
+      const response = await axios.post(`${BASE_URL}/auth/signup`, values)
+      if (response) {
+        toast.success("Verificaiton Mail Send", {
+          position: "top-center",
+        })
+        router.replace("/verify-email")
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+
+        toast.error(error.response.data.error, {
+          position: "top-left",
+        })
+        console.log("error in post ", error.response.data.error)
+      } else {
+        console.log("An unexpected error occurred:", error)
+      }
+    } finally {
+      reset()
+    }
+  }
+
   useEffect(() => {
     setMounted(true)
   }, [])
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      Object.values(errors).forEach((error) => {
+        if (error && error.message) {
+          toast.error(error.message, {position: "top-left"})
+        }
+      })
+    }
+  }, [errors])
   if (!mounted) {
     return null
   }
@@ -57,19 +105,23 @@ const signupPage = () => {
         </div>
       </div>
       <div className="sm:w-1/2 text-center flex flex-col justify-center items-center select-none">
+        <Toaster/>
         <h2 className="md:text-4xl mb-5 text-3xl font-light">Sign Up</h2>
 
-        <form className="space-y-1 sm:w-3/5 w-3/4 text-start">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-1 sm:w-3/5 w-3/4 text-start"
+        >
           <div>
-            <label htmlFor="email" className=" dark:text-gray-200 text-sm">
+            <label htmlFor="fullname" className=" dark:text-gray-200 text-sm">
               FullName
             </label>
             <input
-              id="email"
-              className="border bg-transparent dark:border-gray-700 p-2 placeholder:text-base border-gray-300 rounded-lg w-full focus:outline-gray-800 "
-              type="email"
+              {...register("fullname")}
+              id="fullname"
+              className="border bg-transparent dark:border-gray-700 p-2 placeholder:text-base border-gray-300 rounded-lg w-full  focus:border-[#7457ec] focus:outline-none focus:ring-1 focus:ring-[#7457ec] "
+              type="text"
               placeholder="Enter your FullName"
-              required
             />
           </div>
           <div>
@@ -77,12 +129,12 @@ const signupPage = () => {
               Email
             </label>
             <input
+              {...register("email")}
               id="email"
-              className="border bg-transparent dark:border-gray-700 p-2 placeholder:text-base border-gray-300 rounded-lg w-full focus:outline-gray-800 "
+              className="border bg-transparent dark:border-gray-700 p-2 placeholder:text-base border-gray-300 rounded-lg w-full focus:border-[#7457ec] focus:outline-none focus:ring-1 focus:ring-[#7457ec] "
               type="email"
               placeholder="Email"
-              required
-            />
+            />  
           </div>
           <div>
             <label
@@ -92,49 +144,32 @@ const signupPage = () => {
               Password
             </label>
             <input
+              {...register("password")}
               id="password"
-              className="border bg-transparent dark:border-gray-700 p-2 mb-2 placeholder:text-base border-gray-300 rounded-lg w-full "
+              className="border bg-transparent dark:border-gray-700 p-2 mb-2 placeholder:text-base border-gray-300 rounded-lg w-full focus:border-[#7457ec] focus:outline-none focus:ring-1 focus:ring-[#7457ec]  "
               type="password"
               placeholder="Password"
-              required
             />
           </div>
           <div>
             <label
-              htmlFor="password"
+              htmlFor="confirmPassword"
               className="mb-2 dark:text-gray-200 text-sm"
             >
               Confirm password
             </label>
             <input
-              id="password"
-              className="border bg-transparent dark:border-gray-700 p-2 mb-2 placeholder:text-base border-gray-300 rounded-lg w-full "
+              {...register("confirmPassword")}
+              id="confirmPassword"
+              className="border bg-transparent dark:border-gray-700 p-2 mb-2 placeholder:text-base border-gray-300 rounded-lg w-full focus:border-[#7457ec] focus:outline-none focus:ring-1 focus:ring-[#7457ec] "
               type="password"
               placeholder="Confirm password"
-              required
             />
           </div>
 
           <button type="submit" className="w-full rounded-lg bg-[#7457ee] h-12">
             Sign Up
           </button>
-          {/* <div className="md:mt-3 ">
-              <p>Or continue with</p>
-              <div className="flex gap-4 mt-3 justify-center">
-                <Image
-                  onClick={handleGoogleSignIn}
-                  src={Google}
-                  alt="Google"
-                  className="cursor-pointer w-9 h-9"
-                />
-                <Image
-                  onClick={handleGithubSignIn}
-                  src={Github}
-                  alt="GitHUb"
-                  className="cursor-pointer w-9 h-9"
-                />
-              </div>
-            </div> */}
         </form>
       </div>
       <div className="absolute inset-0 flex items-center justify-center -z-10 ">
@@ -145,13 +180,8 @@ const signupPage = () => {
           className="opacity-35 object-cover mr-[5rem] mt-14"
         />
       </div>
-      {/* <Image
-        src={Saly}
-        alt="Saly"  
-        className="hidden lg:block -z-50 absolute -bottom-10 "
-      /> */}
     </section>
   )
 }
 
-export default signupPage
+export default nonAuth(signupPage)

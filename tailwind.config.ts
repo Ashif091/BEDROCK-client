@@ -18,6 +18,7 @@ const config: Config = {
       },
       fontFamily: {
         koulen: ['Koulen', 'sans-serif'], 
+        alata: ['Alata', 'sans-serif'],
       },
   
     },
