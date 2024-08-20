@@ -13,9 +13,21 @@ const Workspace = () => {
   useEffect(() => {
     setMounted(true)
     document.body.classList.add("dark-scrollbar")
+    document.body.classList.add("bg-dark-blue")
   }, [])
   if (!mounted) {
-    return null
+    return (
+      <main className="pb-[10rem]">
+        <div className="absolute top-16 left-0 right-0 h-[48vh] bg-gradient-to-t from-[#7457EE]/[.16] via-[#7457EE]/[.08] to-transparent">
+          <SparkleEffect />
+        </div>
+        <Logo className="ml-7 mt-5" width={60} fontSize={"xl"} />
+        <div className=" pt-14 pl-36 h-lvh">
+          <p className="text-xl font-alata">Your workspace</p>
+          <List />
+        </div>
+      </main>
+    )
   }
 
   return (
@@ -55,7 +67,7 @@ const Workspace = () => {
           </Link>
           <Link href={"/"}>
             <p className="flex">
-              Support{" "}
+            Terms{" "}
               <Image
                 width={16}
                 className="object-contain"
@@ -66,7 +78,7 @@ const Workspace = () => {
           </Link>
           <Link href={"/"}>
             <p className="flex">
-              Support{" "}
+            Privacy policy{" "}
               <Image
                 width={16}
                 className="object-contain"

@@ -9,7 +9,8 @@ import Image from "next/image"
 import close from "../../../public/close-button.png"
 import throttle from "lodash.throttle"
 import {mcn} from "../lib/utils"
-
+import {  useRouter } from 'next/navigation'
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
 const MAX_NAME_LENGTH = 15
 
@@ -18,9 +19,13 @@ interface WorkspaceFormProps {
   onClose: () => void
 }
 
+
 const WorkspaceForm: React.FC<WorkspaceFormProps> = ({isOpen, onClose}) => {
+  const {workspaces,addWorkspace} = useWorkspaceStore()
+
   const [name, setName] = useState("")
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null)
+  const router = useRouter()
 
   const checkAvailability = useCallback(
     throttle(async (name: string) => {
@@ -72,7 +77,8 @@ const WorkspaceForm: React.FC<WorkspaceFormProps> = ({isOpen, onClose}) => {
           withCredentials: true,
         }
       )
-      console.log(response.data)
+      addWorkspace(response.data)
+      router.push(`/workspace/${response.data._id}`)
       onClose()
     } catch (error) {
         if (axios.isAxiosError(error) && error.response?.data?.error) {

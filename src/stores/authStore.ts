@@ -7,7 +7,7 @@ interface AuthState {
   login: (accessToken: string) => void;
   logout: () => void;
   setAccessToken: (token: string) => void;
-}
+}  
 
 export const useAuthStore = create<AuthState>()(
   persist(
