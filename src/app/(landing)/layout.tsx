@@ -4,7 +4,7 @@ import React from 'react'
 import nonAuth from '@/components/hoc/nonAuth';
 const HomePageLayout = ({ children }: { children: React.ReactNode }) => {
 
-  return (
+ return (
     <main className='light-effect  '>
       <Header />
       {children}

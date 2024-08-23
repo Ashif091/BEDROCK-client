@@ -1,3 +1,5 @@
+import FeaturesDisplay from "@/components/landing-page/FeaturesDisplay"
+import { GetFreeButton } from "@/components/ui/getFreeButton"
 
 const Home = () => {
   return (
@@ -6,6 +8,8 @@ const Home = () => {
         Link Your Thoughts <br /> And <br /> Build Together
       </h1>
       <span className="text-2xl">Collaborate Beyond Folders.</span>
+      <GetFreeButton/>
+      <FeaturesDisplay/>
     </main>
   )
 }
