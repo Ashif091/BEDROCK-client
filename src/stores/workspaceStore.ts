@@ -9,6 +9,7 @@ export interface Workspace {
   title: string;
   workspaceOwner: string;
   collaborators?: string[];
+  icon?: string;
   documents?: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -16,18 +17,23 @@ export interface Workspace {
 
 interface WorkspaceState {
   workspaces: Workspace[];
+  currentlyWorking: string | null;
   isLoading: boolean;
   error: string | null;
   fetchWorkspaces: () => Promise<void>;
   addWorkspace: (workspace: Workspace) => void;
   updateWorkspace: (updatedWorkspace: Workspace) => void;
   deleteWorkspace: (workspaceId: string) => void;
+  setIcon: (workspaceId: string, icon: string) => void;
+  setTitle: (workspaceId: string, title: string) => void;
+  setCurrentlyWorking: (workspaceId: string) => void; 
 }
 
 export const useWorkspaceStore = create<WorkspaceState>()(
   persist(
     (set) => ({
       workspaces: [],
+      currentlyWorking: null, 
       isLoading: false,
       error: null,
       fetchWorkspaces: async () => {
@@ -41,17 +47,36 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           set({ error: 'Failed to fetch workspaces', isLoading: false });
         }
       },
-      addWorkspace: (workspace) => set((state) => ({
-        workspaces: [...state.workspaces, workspace],
-      })),
-      updateWorkspace: (updatedWorkspace) => set((state) => ({
-        workspaces: state.workspaces.map((workspace) => 
-          workspace._id === updatedWorkspace._id ? updatedWorkspace : workspace
-        ),
-      })),
-      deleteWorkspace: (workspaceId) => set((state) => ({
-        workspaces: state.workspaces.filter((workspace) => workspace._id !== workspaceId),
-      })),
+      addWorkspace: (workspace) =>
+        set((state) => ({
+          workspaces: [...state.workspaces, workspace],
+        })),
+      updateWorkspace: (updatedWorkspace) =>
+        set((state) => ({
+          workspaces: state.workspaces.map((workspace) =>
+            workspace._id === updatedWorkspace._id ? updatedWorkspace : workspace
+          ),
+        })),
+      deleteWorkspace: (workspaceId) =>
+        set((state) => ({
+          workspaces: state.workspaces.filter((workspace) => workspace._id !== workspaceId),
+        })),
+      setIcon: (workspaceId, icon) =>
+        set((state) => ({
+          workspaces: state.workspaces.map((workspace) =>
+            workspace._id === workspaceId ? { ...workspace, icon } : workspace
+          ),
+        })),
+      setTitle: (workspaceId, title) =>
+        set((state) => ({
+          workspaces: state.workspaces.map((workspace) =>
+            workspace._id === workspaceId ? { ...workspace, title } : workspace
+          ),
+        })),
+      setCurrentlyWorking: (workspaceId) =>
+        set(() => ({
+          currentlyWorking: workspaceId,
+        })),
     }),
     {
       name: 'workspace-storage',

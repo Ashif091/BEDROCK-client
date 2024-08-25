@@ -10,8 +10,8 @@ import { Workspace } from '@/stores/workspaceStore'
 import { useAuthStore} from '@/stores/authStore'
 import withAuth from '@/components/hoc/withAuth'
 import axios from 'axios'
+import Settings from '@/components/workspace/settings/settings'
 
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
 const WorkspaceDetail = () => {
   const { id } = useParams()
   const router = useRouter()
@@ -41,13 +41,7 @@ const WorkspaceDetail = () => {
     loadWorkspace()
   }, [id, workspaces, fetchWorkspaces, router])
 
-  const logoutAction = async ()=>{
-    await axios.get(`${BASE_URL}/auth/logout`,{
-      withCredentials: true,
-    })
-    logout()
-    router.refresh()
-  }
+
 
   if (loading) {
     return  <div className="fixed inset-0 flex items-center justify-center bg-[#191919] bg-opacity-75">
@@ -85,37 +79,11 @@ const WorkspaceDetail = () => {
     </div>
 
     {isSettingsOpen && (
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-        onClick={toggleSettings}
-      >
-        <div 
-          className="w-[70rem] h-[30rem] bg-[#202020] rounded-md border border-gray-500 border-opacity-50 flex"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="w-1/4 bg-[#202020] border-r border-gray-500 border-opacity-50">
-            <div className="p-4 bg-[#2b2b2b] text-white">Profile</div>
-            {/* Add other sidebar options here */}
-          </div>
-          <div className="w-3/4 p-8">
-            <div className="flex items-center mb-8">
-              <div className="w-32 h-32 bg-gray-300 rounded-full mr-8">
-                <Image src={profile} alt="Profile" width={128} height={128} className="rounded-full" />
-              </div>
-              <div>
-                <input type="file" className="mb-4" />
-                <input type="text" placeholder="Username" className="block mb-2 p-2 bg-[#2b2b2b] text-white" />
-                <input type="email" placeholder="Email" className="block p-2 bg-[#2b2b2b] text-white" />
-              </div>
-              <div onClick={logoutAction}  className='flex cursor-pointer'>
-                Logout
-              </div>
-            </div>
-            {/* Add other profile settings here */}
-          </div>
-        </div>
-      </div>
+      <Settings toggleSettings={toggleSettings} />
     )}
+
+
+
   </>
   )
 }

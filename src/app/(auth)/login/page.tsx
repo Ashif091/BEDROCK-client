@@ -18,6 +18,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
 
 const LoginPage = () => {
   const login = useAuthStore((state) => state.login)
+  const setUser = useAuthStore((state) => state.setUser)
   const accessToken = useAuthStore((state) => state.accessToken)
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
@@ -40,8 +41,9 @@ const LoginPage = () => {
         toast.success("login successfull", {
           position: "top-center",
         })
-        if (response.data.accessToken) {
+        if (response.data.accessToken &&response.data.userInfo) {
           login(response.data.accessToken)
+          setUser(response.data.userInfo)
         }
         router.push("/workspace")
       }

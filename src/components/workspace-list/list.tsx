@@ -9,13 +9,14 @@ import { useRouter } from "next/navigation"
 
 const List = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const {workspaces, isLoading, error, fetchWorkspaces} = useWorkspaceStore()
+  const {workspaces, isLoading, error, fetchWorkspaces,setCurrentlyWorking} = useWorkspaceStore()
   const router = useRouter()
   useEffect(() => {
     fetchWorkspaces()
   }, [fetchWorkspaces])
   const handleWorkspaceClick = (workspaceId: string) => {
-    router .push(`/workspace/${workspaceId}`)
+    setCurrentlyWorking(workspaceId)
+    router.push(`/workspace/${workspaceId}`)
   }
   const renderWorkspaces = () => {
     if (isLoading) {
