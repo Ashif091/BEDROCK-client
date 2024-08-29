@@ -9,7 +9,6 @@ import Cookies from "js-cookie"
 const Home = () => {
   const [mounted, setMounted] = useState(false)
   const {login} = useAuthStore()
-
   useEffect(() => {
     setMounted(true)
     document.body.classList.add("dark-scrollbar")

@@ -12,6 +12,8 @@ import { Toaster, toast } from 'sonner';
 import axios from "axios"
 import Link from "next/link"
 import {signUpSchema} from "@/Types/Schema"
+import SignInWithGoogle from "@/components/ui/auth/signIn-google"
+import SignInWithGit from "@/components/ui/auth/signin-git"
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
 const signupPage = () => {
   const [mounted, setMounted] = useState(false)
@@ -171,6 +173,11 @@ const signupPage = () => {
             Sign Up
           </button>
         </form>
+        <span className="mt-4">Or continue with</span>
+        <div className="flex gap-3 ">
+        <SignInWithGoogle/>
+        <SignInWithGit/>
+        </div>
       </div>
       <div className="absolute inset-0 flex items-center justify-center -z-10 ">
         <Image
