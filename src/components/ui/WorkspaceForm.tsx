@@ -1,17 +1,14 @@
-// components/ui/WorkspaceForm.tsx
 "use client"
-// components/ui/WorkspaceForm.tsx
 import React, {useCallback, useState} from "react"
 import {motion} from "framer-motion"
 import { Toaster, toast } from 'sonner';
-import axios from "axios"
 import Image from "next/image"
 import close from "../../../public/close-button.png"
 import throttle from "lodash.throttle"
 import {mcn} from "../lib/utils"
 import {  useRouter } from 'next/navigation'
 import { useWorkspaceStore } from "@/stores/workspaceStore";
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
+import { createAxiosInstance } from "@/app/utils/axiosInstance ";
 const MAX_NAME_LENGTH = 15
 
 interface WorkspaceFormProps {
@@ -21,6 +18,7 @@ interface WorkspaceFormProps {
 
 
 const WorkspaceForm: React.FC<WorkspaceFormProps> = ({isOpen, onClose}) => {
+  const api = createAxiosInstance()
   const {workspaces,addWorkspace} = useWorkspaceStore()
 
   const [name, setName] = useState("")
@@ -35,12 +33,11 @@ const WorkspaceForm: React.FC<WorkspaceFormProps> = ({isOpen, onClose}) => {
       }
 
       try {
-        const response = await axios.post(
-          `${BASE_URL}/workspace/check-name`,
+        const response = await api.post(
+          "/workspace/check-name",
           {name},
           {
             headers: {"Content-Type": "application/json"},
-            withCredentials: true,
           }
         )
         setIsAvailable(!response.data.available)
@@ -69,19 +66,15 @@ const WorkspaceForm: React.FC<WorkspaceFormProps> = ({isOpen, onClose}) => {
     if (!isAvailable) return
 
     try {
-      const response = await axios.post(
-        `${BASE_URL}/workspace/create`,
+      const response = await api.post(
+        "/workspace/create",
         {name},
-        {
-          headers: {"Content-Type": "application/json"},
-          withCredentials: true,
-        }
       )
       addWorkspace(response.data)
       router.push(`/workspace/${response.data._id}`)
       onClose()
-    } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.data?.error) {
+    } catch (error:any) {
+        if (error.response?.data?.error) {
            setIsAvailable(false)
             toast.error(error.response.data.error, {
               position: "bottom-left",

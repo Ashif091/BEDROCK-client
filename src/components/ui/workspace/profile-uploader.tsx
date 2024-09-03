@@ -2,11 +2,10 @@ import React, {useState, useEffect} from "react"
 import Image from "next/image"
 import {useAuthStore} from "@/stores/authStore"
 import {useEdgeStore} from "@/lib/edgestore"
-import axios from "axios"
-
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
+import {createAxiosInstance} from "@/app/utils/axiosInstance "
 
 const ProfileImageUploader: React.FC = () => {
+  const api = createAxiosInstance()
   const [file, setFile] = useState<File | null>(null)
 
   const {edgestore} = useEdgeStore()
@@ -33,14 +32,13 @@ const ProfileImageUploader: React.FC = () => {
           },
         })
         setProfile(res.url)
-        await axios.patch(
-          `${BASE_URL}/auth/user`,
+        await api.patch(
+          "/auth/user",
           {profile: res.url},
           {
             headers: {
               "Content-Type": "application/json",
             },
-            withCredentials: true,
           }
         )
       } catch (error) {

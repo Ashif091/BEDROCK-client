@@ -5,11 +5,9 @@ import { useWorkspaceStore } from '@/stores/workspaceStore'
 import Image from 'next/image'
 import node from "../../../../public/png-transparent-js-logo-node-logos-and-brands-icon-thumbnail.png"
 import settings from "../../../../public/setting.png"
-import profile from "../../../../public/user.png"
 import { Workspace } from '@/stores/workspaceStore'
 import { useAuthStore} from '@/stores/authStore'
 import withAuth from '@/components/hoc/withAuth'
-import axios from 'axios'
 import Settings from '@/components/workspace/settings/settings'
 
 const WorkspaceDetail = () => {

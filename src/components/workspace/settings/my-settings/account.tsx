@@ -2,18 +2,16 @@ import React from "react"
 import EditableFullname from "@/components/ui/workspace/editable-fullname"
 import {useAuthStore} from "@/stores/authStore"
 import ProfileImageUploader from "@/components/ui/workspace/profile-uploader"
-import axios from "axios"
 import { useRouter } from "next/navigation"
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
+import { createAxiosInstance } from "@/app/utils/axiosInstance "
 
 const Account = () => {
+  const api = createAxiosInstance();
   const {user,logout} = useAuthStore()
   const router = useRouter()
   const logoutAction = async ()=>{
-    let res = await axios.get(`${BASE_URL}/auth/logout`,{
-      withCredentials: true,
-    })
-    console.log(res.data.message)
+    let res = await api.get("/auth/logout")
+    if(res)
     logout()
     router.refresh()
   }

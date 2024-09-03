@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from "react"
 import {useWorkspaceStore} from "../../../stores/workspaceStore"
-import axios from "axios"
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
+import { createAxiosInstance } from "@/app/utils/axiosInstance "
 const WorkspaceTitle = () => {
+  const api = createAxiosInstance()
+
   const {workspaces, setTitle, currentlyWorking} = useWorkspaceStore()
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitleInput] = useState("")

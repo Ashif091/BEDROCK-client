@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from "react"
-import axios from "axios"
 import {useAuthStore} from "../../../stores/authStore"
+import {createAxiosInstance} from "@/app/utils/axiosInstance "
 
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
 
 const EditableFullname: React.FC = () => {
+  const api = createAxiosInstance()
   const {user, setFullname} = useAuthStore()
   const [isEditing, setIsEditing] = useState(false)
   const [fullname, setFullnameState] = useState(user?.fullname || "")
@@ -28,15 +28,13 @@ const EditableFullname: React.FC = () => {
       try {
         if (fullname.trim().length > 15 || fullname.trim().length < 2)
           return null
-
-        const response = await axios.patch(
-          `${BASE_URL}/auth/user`,
+        const response = await api.patch(
+          "/auth/user",
           {fullname},
           {
             headers: {
               "Content-Type": "application/json",
             },
-            withCredentials: true,
           }
         )
 

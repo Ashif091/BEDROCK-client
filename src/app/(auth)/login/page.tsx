@@ -15,8 +15,10 @@ import axios from "axios"
 import {useRouter} from "next/navigation"
 import SignInWithGoogle from "@/components/ui/auth/signIn-google"
 import SignInWithGit from "@/components/ui/auth/signin-git"
+import { createAxiosInstance } from "@/app/utils/axiosInstance "
 
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
+
+const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL 
 
 const LoginPage = () => {
   const login = useAuthStore((state) => state.login)
@@ -24,6 +26,7 @@ const LoginPage = () => {
   const accessToken = useAuthStore((state) => state.accessToken)
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
+  const api = createAxiosInstance();
 
   const {
     register,
@@ -36,9 +39,8 @@ const LoginPage = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await axios.post(`${BASE_URL}/auth/login`, data, {
-        withCredentials: true,
-      })
+
+      const response = await api.post("/auth/login",data)
       if (response) {
         toast.success("login successfull", {
           position: "top-center",
@@ -60,34 +62,6 @@ const LoginPage = () => {
       }
     } finally {
       reset()
-    }
-  }
-
-  const onclick = async () => {
-    console.log(" onclick activated")
-
-    try {
-      const response = await axios.get(`${BASE_URL}/auth/token-check`, {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-      if (response) {
-        toast.success("data get", {
-          position: "top-center",
-        })
-        console.log("data of req", response)
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data?.error) {
-        toast.error(error.response.data.error, {
-          position: "top-left",
-        })
-        console.log("error in post ", error.response.data.error)
-      } else {
-        console.log("An unexpected error occurred:", error)
-      }
     }
   }
 
@@ -149,7 +123,6 @@ const LoginPage = () => {
       <div className="sm:w-1/2 text-center flex flex-col justify-center items-center select-none">
         <h2
           className="md:text-4xl mb-5 text-3xl font-light"
-          onClick={() => onclick()}
         >
           Sign In
         </h2>

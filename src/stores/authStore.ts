@@ -37,7 +37,6 @@ export const useAuthStore = create<AuthState>()(
       login: async (accessToken) => {
         try {
           set({accessToken, isAuthenticated: true})
-
           const response = await axios.get<User>(`${BASE_URL}/auth/users/me`, {
             withCredentials: true,
           })
