@@ -1,10 +1,11 @@
 import React, {useEffect} from "react"
 import {useAuthStore} from "@/stores/authStore"
 import Image from "next/image"
+const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 import git_icon from "../../../../public/github-icon.png"
 const SignInWithGit = () => {
   const handleGitSignIn = () => {
-    window.open("http://localhost:3001/auth/github", "_self")
+    window.open(`${BASE_URL}/auth/github`, "_self")
   }
   return (
     <Image
