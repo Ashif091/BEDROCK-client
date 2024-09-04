@@ -5,19 +5,19 @@ import axios from 'axios';
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
 export interface Workspace {
-  _id: string;
+  _id?: string;
   title: string;
   workspaceOwner: string;
   collaborators?: string[];
   icon?: string;
   documents?: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface WorkspaceState {
   workspaces: Workspace[];
-  currentlyWorking: string | null;
+  currentlyWorking: Workspace | null;
   isLoading: boolean;
   error: string | null;
   fetchWorkspaces: () => Promise<void>;
@@ -26,14 +26,14 @@ interface WorkspaceState {
   deleteWorkspace: (workspaceId: string) => void;
   setIcon: (workspaceId: string, icon: string) => void;
   setTitle: (workspaceId: string, title: string) => void;
-  setCurrentlyWorking: (workspaceId: string) => void; 
+  setCurrentlyWorking: (workspaceId: string) => Promise<void>;
 }
 
 export const useWorkspaceStore = create<WorkspaceState>()(
   persist(
     (set) => ({
       workspaces: [],
-      currentlyWorking: null, 
+      currentlyWorking: null,
       isLoading: false,
       error: null,
       fetchWorkspaces: async () => {
@@ -61,22 +61,37 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         set((state) => ({
           workspaces: state.workspaces.filter((workspace) => workspace._id !== workspaceId),
         })),
-      setIcon: (workspaceId, icon) =>
+        setIcon: (workspaceId, icon) =>
         set((state) => ({
           workspaces: state.workspaces.map((workspace) =>
             workspace._id === workspaceId ? { ...workspace, icon } : workspace
           ),
+          currentlyWorking: state.currentlyWorking?._id === workspaceId
+            ? { ...state.currentlyWorking, icon }
+            : state.currentlyWorking,
         })),
+      
       setTitle: (workspaceId, title) =>
         set((state) => ({
           workspaces: state.workspaces.map((workspace) =>
             workspace._id === workspaceId ? { ...workspace, title } : workspace
           ),
+          currentlyWorking: state.currentlyWorking?._id === workspaceId
+            ? { ...state.currentlyWorking, title }
+            : state.currentlyWorking,
         })),
-      setCurrentlyWorking: (workspaceId) =>
-        set(() => ({
-          currentlyWorking: workspaceId,
-        })),
+      
+      setCurrentlyWorking: async (workspaceId) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await axios.get<Workspace>(`${BASE_URL}/workspace/${workspaceId}`, {
+            withCredentials: true,
+          });
+          set({ currentlyWorking: response.data, isLoading: false });
+        } catch (error) {
+          set({ error: 'Failed to fetch the workspace', isLoading: false });
+        }
+      },
     }),
     {
       name: 'workspace-storage',
