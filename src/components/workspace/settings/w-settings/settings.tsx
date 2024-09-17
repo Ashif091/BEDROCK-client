@@ -169,7 +169,7 @@ const WorkSpaceSettings = () => {
           </button>
           <button
             onClick={handleCancel}
-            className="px-4 py-2 border border-white text-white rounded-md"
+            className="px-4 py-2 border opacity-65 border-white text-white rounded-md"
           >
             Cancel
           </button>

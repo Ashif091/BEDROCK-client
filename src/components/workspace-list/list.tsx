@@ -5,11 +5,14 @@ import plus_icon from "../../../public/add.png"
 import menu_icon from "../../../public/menu.png"
 import WorkspaceForm from "@/components/ui/WorkspaceForm"
 import {useWorkspaceStore} from "@/stores/workspaceStore"
-import { useRouter } from "next/navigation"
+import {useRouter} from "next/navigation"
+import {useAuthStore} from "@/stores/authStore"
 
 const List = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const {workspaces, isLoading, error, fetchWorkspaces,setCurrentlyWorking} = useWorkspaceStore()
+  const {workspaces, isLoading, error, fetchWorkspaces, setCurrentlyWorking} =
+    useWorkspaceStore()
+  const {logout} = useAuthStore()
   const router = useRouter()
   useEffect(() => {
     fetchWorkspaces()
@@ -37,7 +40,7 @@ const List = () => {
     return workspaces.map((workspace) => (
       <section
         key={workspace._id}
-        onClick={() => handleWorkspaceClick(workspace._id)}
+        onClick={() => handleWorkspaceClick(workspace._id as string)}
         className="w-[18rem] h-48 z-10 rounded-md ring-[.5px] ring-black bg-[#0F0B40] cursor-pointer select-none flex flex-col justify-between"
       >
         <p className="text-xl mt-8 ml-7">{workspace.title}</p>
