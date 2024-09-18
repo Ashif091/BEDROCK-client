@@ -4,18 +4,23 @@ import graph_img from "../../../../public/sidebar/graph.png"
 
 interface ActionBarProps {
   setActiveComponent: (component: string) => void
-  activeComponent: string
+  activeComponent: string;
+  setActiveDocument:any
 }
 
 const ActionBar: React.FC<ActionBarProps> = ({
   setActiveComponent,
   activeComponent,
+  setActiveDocument,
 }) => {
   const actionItems = [
     {name: "Home", icon: home_img},
     {name: "Graph", icon: graph_img},
   ]
-
+  const haddleChange = (name:string)=>{
+    setActiveComponent(name)
+    setActiveDocument(null)
+  }
   return (
     <>
       {actionItems.map((item) => (
@@ -26,7 +31,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
               ? "bg-[#2b2b2b]"
               : "hover:bg-[#2b2b2b]"
           }`}
-          onClick={() => setActiveComponent(item.name)}
+          onClick={() => haddleChange(item.name)}
         >
           <Image
             src={item.icon}
