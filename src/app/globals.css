@@ -115,3 +115,20 @@ body {
   background-size: 200% 100%;
   animation: loadingAnimation 1.5s infinite;
 }
+
+
+.side-scrollbar::-webkit-scrollbar {
+  width: 12px; 
+}
+
+.side-scrollbar::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+.side-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #5b5b5b;
+}
+.side-scrollbar::-webkit-scrollbar-button {
+  display: none;
+
+}

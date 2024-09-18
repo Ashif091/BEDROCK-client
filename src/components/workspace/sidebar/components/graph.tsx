@@ -13,11 +13,20 @@ interface NodeData {
 const Graph: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const defaultNodes: NodeData[] = [
-    { id: "a", label: "Node A", link: ["b", "c"] },
-    { id: "b", label: "Node B", link: ["a", "d"] },
-    { id: "c", label: "Node C", link: ["a"] },
-    { id: "d", label: "Node D", link: ["b"] },
-  ]
+    // Existing complex graph
+    { id: "a", label: "Node A", link: ["b", "c", "e", "f"] }, 
+    { id: "b", label: "Node B", link: ["a", "d", "g"] },      
+    { id: "c", label: "Node C", link: ["a", "f"] },           
+    { id: "d", label: "Node D", link: ["b", "h"] },           
+    { id: "e", label: "Node E", link: ["a", "f", "g"] },      
+    { id: "f", label: "Node F", link: ["a", "c", "e"] },      
+    { id: "g", label: "Node G", link: ["b", "e", "h"] },      
+    { id: "h", label: "Node H", link: ["d", "g"] },           
+    { id: "i", label: "Node I", link: [] }, 
+
+  ];
+  
+  
   const [nodes, setNodes] = useState<NodeData[]>(defaultNodes)
   const router = useRouter()
 

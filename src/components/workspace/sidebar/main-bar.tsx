@@ -36,7 +36,7 @@ const SideBar: React.FC<SideBarProps> = ({
     setActiveDocument(doc)
   }
   return (
-    <div className="w-[18%] h-full bg-[#202020] p-3 flex flex-col space-y-1 border-r border-gray-200/20">
+    <div className="w-[18%] h-full bg-[#202020] p-3 flex flex-col select-none space-y-1 border-r border-gray-200/20">
       <InfoBar />
       <ActionBar
         activeComponent={activeComponent}
