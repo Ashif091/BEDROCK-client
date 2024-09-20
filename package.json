@@ -9,12 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@blocknote/core": "^0.12.4",
-    "@blocknote/mantine": "^0.15.7",
-    "@blocknote/react": "^0.15.7",
+    "@blocknote/core": "^0.15.9",
+    "@blocknote/mantine": "^0.15.9",
+    "@blocknote/react": "^0.15.9",
     "@edgestore/react": "^0.2.2",
     "@edgestore/server": "^0.2.2",
     "@hookform/resolvers": "^3.9.0",
+    "@liveblocks/client": "^2.7.1",
+    "@liveblocks/react": "^2.7.1",
+    "@liveblocks/yjs": "^2.7.1",
     "@radix-ui/react-label": "^2.1.0",
     "@react-three/fiber": "^8.17.5",
     "@tabler/icons-react": "^3.12.0",
@@ -41,6 +44,7 @@
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.0",
     "three": "^0.167.1",
+    "yjs": "^13.6.19",
     "zod": "^3.23.8",
     "zustand": "^4.5.5"
   },
