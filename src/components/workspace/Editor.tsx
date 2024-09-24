@@ -46,7 +46,7 @@ function BlockNote({ doc, provider }: EditorProps) {
       provider,
       // Where to store BlockNote data in the Y.Doc:
       fragment: doc.getXmlFragment("document-store"),
-
+ 
       // Information for this user:
       user: {
         name: "My Username",
