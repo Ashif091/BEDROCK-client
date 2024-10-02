@@ -19,7 +19,7 @@ const List = () => {
   }, [fetchWorkspaces])
   const handleWorkspaceClick = (workspaceId: string) => {
     setCurrentlyWorking(workspaceId)
-    router.push(`/workspace/${workspaceId}`)
+    router.push(`/workspace/${workspaceId}/home`)
   }
   const renderWorkspaces = () => {
     if (isLoading) {

@@ -18,7 +18,7 @@ const WorkspaceDetail = () => {
 
   const [activeDocument, setActiveDocument] = useState<any>(null)
   useEffect(() => {
-    document.body.classList.add("bg-[#191919]")
+    // document.body.classList.add("bg-[#191919]")
     const loadWorkspace = async () => {
       if (currentlyWorking?._id !== id) router.push("/not-found")
       setLoading(false)
@@ -44,13 +44,8 @@ const WorkspaceDetail = () => {
   }
   return (
     <div className="flex bg-[#191919] w-screen h-screen ">
-      <SideBar
-        activeComponent={activeComponent}
-        setActiveComponent={setActiveComponent}
-        setActiveDocument={setActiveDocument}
-        activeDocument={activeDocument}
-      />
-      <div className="flex-1 ">{renderContent()}</div>
+      {/* <SideBar /> */}
+      {/* <div className="flex-1 ">{renderContent()}</div> */}
     </div>
   )
 }

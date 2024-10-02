@@ -5,7 +5,7 @@ declare global {
     // Each user's Presence, for useMyPresence, useOthers, etc.
     Presence: {
       // Example, real-time cursor coordinates
-      // cursor: { x: number; y: number };
+      cursor: { x: number; y: number } | null;
     };
 
     // The Storage tree for the room, for useMutation, useStorage, etc.
@@ -13,14 +13,15 @@ declare global {
       // Example, a conflict-free list
       // animals: LiveList<string>;
     };
+    
 
     // Custom user info set when authenticating with a secret key
     UserMeta: {
       id: string;
       info: {
-        // Example properties, for useSelf, useUser, useOthers, etc.
-        // name: string;
-        // avatar: string;
+        name: string;
+        email: string;
+        avatar: string;
       };
     };
 
