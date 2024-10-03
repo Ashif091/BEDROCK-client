@@ -11,6 +11,7 @@ import * as Y from "yjs"
 import {useRoom, useSelf} from "@liveblocks/react/suspense"
 import stringToColor from "../lib/stringToColor"
 import { useEdgeStore } from "@/lib/edgestore"
+import Settings from "./settings/settings"
 
 type EditorProps = {
   doc: Y.Doc
@@ -71,7 +72,6 @@ function BlockNote({doc, provider}: EditorProps) {
 
   return (
     <BlockNoteView
-      
       className=""
       theme="dark"
       // formattingToolbar={false}

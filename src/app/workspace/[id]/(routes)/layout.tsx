@@ -1,5 +1,6 @@
 "use client"
 import LoadingEffect from "@/components/effects/screen-loading"
+import Settings from "@/components/workspace/settings/settings"
 import SideBar from "@/components/workspace/sidebar/main-bar"
 import { useWorkspaceStore } from "@/stores/workspaceStore"
 import Link from "next/link"
@@ -9,7 +10,7 @@ import {ReactNode, useEffect, useState} from "react"
 
 export default function WorkspaceLayout({children}: {children: ReactNode}) {
   const {id} = useParams()
-  const {fetchWorkspaces, currentlyWorking} = useWorkspaceStore()
+  const {fetchWorkspaces, currentlyWorking,isSettingsOpen,toggleSettings} = useWorkspaceStore()
   const [loading, setLoading] = useState(true)
   useEffect(() => {
     const loadWorkspace = async () => {
@@ -25,6 +26,7 @@ export default function WorkspaceLayout({children}: {children: ReactNode}) {
     <div className="flex bg-[#191919] w-screen h-screen">
       <SideBar/>
       <main className="flex-1 overflow-y-auto overflow-x-hidden side-scrollbar">{children}</main>
+      {isSettingsOpen && <Settings toggleSettings={toggleSettings} />}
     </div>
   )
 }

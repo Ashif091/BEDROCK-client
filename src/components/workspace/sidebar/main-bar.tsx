@@ -16,7 +16,7 @@ import Link from "next/link"
 
 const SideBar = ({}) => {
   const {fetchDocuments, documents} = useDocumentStore()
-  const {currentlyWorking} = useWorkspaceStore()
+  const {currentlyWorking,isSettingsOpen,toggleSettings} = useWorkspaceStore()
   const router = useRouter()
   const actionItems = [
     {name: "home", icon: home_img},
@@ -29,8 +29,6 @@ const SideBar = ({}) => {
     router.push(`/workspace/${currentlyWorking?._id}/${action}`)
   }
 
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const toggleSettings = () => setIsSettingsOpen(!isSettingsOpen)
   return (
     <div className="w-[18%] h-full bg-[#202020] p-3 flex flex-col select-none space-y-1 border-r border-gray-200/20 sticky top-0">
       <InfoBar />

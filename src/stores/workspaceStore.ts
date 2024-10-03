@@ -20,6 +20,7 @@ interface WorkspaceState {
   currentlyWorking: Workspace | null;
   isLoading: boolean;
   error: string | null;
+  isSettingsOpen: boolean;
   fetchWorkspaces: () => Promise<void>;
   addWorkspace: (workspace: Workspace) => void;
   updateWorkspace: (updatedWorkspace: Workspace) => void;
@@ -27,6 +28,7 @@ interface WorkspaceState {
   setIcon: (workspaceId: string, icon: string) => void;
   setTitle: (workspaceId: string, title: string) => void;
   setCurrentlyWorking: (workspaceId: string) => Promise<void>;
+  toggleSettings: () => void; 
 }
 
 export const useWorkspaceStore = create<WorkspaceState>()(
@@ -36,6 +38,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       currentlyWorking: null,
       isLoading: false,
       error: null,
+      isSettingsOpen: false,
       fetchWorkspaces: async () => {
         set({ isLoading: true, error: null });
         try {
@@ -92,6 +95,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           set({ error: 'Failed to fetch the workspace', isLoading: false });
         }
       },
+      toggleSettings: () => set((state) => ({
+        isSettingsOpen: !state.isSettingsOpen, 
+      })),
     }),
     {
       name: 'workspace-storage',
