@@ -19,8 +19,6 @@ const LiveBlocksProvider = ({children}: {children: React.ReactNode}) => {
         const response = await api.post("/workspace/liveblocks-auth", {
           room,
         })
-        console.log("🚀 ~ authEndpoint={ ~ response.data:", response.data)
-
         return JSON.parse(response.data)
       }}
     >

@@ -22,10 +22,9 @@ export default function WorkspaceLayout({children}: {children: ReactNode}) {
     return <LoadingEffect />
   }
   return (
-    <div className="flex bg-[#191919] w-screen h-screen ">
-      {/* side bar */}
+    <div className="flex bg-[#191919] w-screen h-screen">
       <SideBar/>
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 overflow-y-auto overflow-x-hidden side-scrollbar">{children}</main>
     </div>
   )
 }

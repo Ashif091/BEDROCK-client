@@ -28,11 +28,11 @@ const Settings: React.FC<SettingsProps> = ({toggleSettings}) => {
 
   return (
     <div
-      className="fixed inset-0 z-20  bg-[#202020] bg-opacity-50 flex items-center justify-center"
+      className="fixed inset-0 z-50  bg-[#202020] bg-opacity-50 flex items-center justify-center"
       onClick={toggleSettings}
     >
       <div
-        className="md:w-[67rem] md:h-[30rem] sm:w-[40rem] w-[30rem] sm:h-[20rem] h-[15rem] flex bg-[#202020] rounded-xl"
+        className="md:w-[67rem] z-50 md:h-[30rem] sm:w-[40rem] w-[30rem] sm:h-[20rem] h-[15rem] flex bg-[#202020] rounded-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <Sidebar

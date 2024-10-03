@@ -5,6 +5,7 @@ import {
   ClientSideSuspense,
 } from "@liveblocks/react/suspense"
 import LiveCursorProvider from "./LiveCursorProvider"
+import LoadingSkeleton from "../effects/LoadingSkeleton"
 const RoomProvider = ({
   roomId,
   children,
@@ -12,15 +13,13 @@ const RoomProvider = ({
   roomId: string
   children: React.ReactNode
 }) => {
-    console.log("🚀 ~ roomId:", roomId)
-    
   return (
     <RoomProviderWrapper
       id={roomId}
       initialPresence={{cursor: null}}
       //   initialStorage={{}} ? Add room initaial storage
     >
-      <ClientSideSuspense fallback={<p>Loading room...</p>}>
+      <ClientSideSuspense fallback={<LoadingSkeleton/>}>
         <LiveCursorProvider>
         {children}
         </LiveCursorProvider>
