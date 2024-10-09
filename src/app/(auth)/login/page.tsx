@@ -49,7 +49,7 @@ const LoginPage = () => {
           login(response.data.accessToken)
           setUser(response.data.userInfo)
         }
-        router.push("/workspace")
+        router.back()
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data?.error) {

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useAuthStore } from "../../stores/authStore"
 
-const withAuth = (WrappedComponent: React.ComponentType) => {
+const withAuth = (WrappedComponent: any) => {
   return (props: any) => {
     const { isAuthenticated } = useAuthStore()
     const [isClient, setIsClient] = useState(false)

@@ -1,5 +1,6 @@
 "use client"
 import LoadingEffect from "@/components/effects/screen-loading"
+import withAuth from "@/components/hoc/withAuth"
 import Settings from "@/components/workspace/settings/settings"
 import SideBar from "@/components/workspace/sidebar/main-bar"
 import { useWorkspaceStore } from "@/stores/workspaceStore"
@@ -8,7 +9,7 @@ import { useParams } from "next/navigation"
 import { useRouter } from "next/router"
 import {ReactNode, useEffect, useState} from "react"
 
-export default function WorkspaceLayout({children}: {children: ReactNode}) {
+const WorkspaceLayout = ({children}: {children: ReactNode})=> {
   const {id} = useParams()
   const {fetchWorkspaces, currentlyWorking,isSettingsOpen,toggleSettings} = useWorkspaceStore()
   const [loading, setLoading] = useState(true)
@@ -30,3 +31,5 @@ export default function WorkspaceLayout({children}: {children: ReactNode}) {
     </div>
   )
 }
+
+export default withAuth(WorkspaceLayout)
