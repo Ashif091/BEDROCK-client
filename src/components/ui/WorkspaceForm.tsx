@@ -8,7 +8,7 @@ import throttle from "lodash.throttle"
 import {mcn} from "../lib/utils"
 import {  useRouter } from 'next/navigation'
 import { useWorkspaceStore } from "@/stores/workspaceStore";
-import { createAxiosInstance } from "@/app/utils/axiosInstance ";
+import { createAxiosInstance } from "@/app/utils/axiosInstance";
 const MAX_NAME_LENGTH = 15
 
 interface WorkspaceFormProps {

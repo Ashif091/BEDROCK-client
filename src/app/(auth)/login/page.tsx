@@ -15,7 +15,7 @@ import axios from "axios"
 import {useRouter} from "next/navigation"
 import SignInWithGoogle from "@/components/ui/auth/signIn-google"
 import SignInWithGit from "@/components/ui/auth/signin-git"
-import { createAxiosInstance } from "@/app/utils/axiosInstance "
+import { createAxiosInstance } from "@/app/utils/axiosInstance"
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL 

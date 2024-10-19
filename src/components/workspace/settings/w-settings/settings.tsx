@@ -1,10 +1,10 @@
 import React, {useState, useEffect, useRef} from "react"
 import WorkspaceTitle from "@/components/ui/workspace/workspace-title"
 import {useWorkspaceStore} from "@/stores/workspaceStore"
-import {createAxiosInstance} from "@/app/utils/axiosInstance "
+import {createAxiosInstance} from "@/app/utils/axiosInstance"
 import {useEdgeStore} from "@/lib/edgestore"
 
-const WorkSpaceSettings = () => {
+const WorkSpaceSettings: React.FC = () => {
   const {currentlyWorking, setTitle, setIcon} = useWorkspaceStore()
   const {edgestore} = useEdgeStore()
   const [title, setTitleInput] = useState(currentlyWorking?.title || "")
@@ -56,7 +56,7 @@ const WorkSpaceSettings = () => {
 
       const data: {title?: string; icon?: string} = {}
 
-      if (title.trim()!== originalTitle) {
+      if (title.trim() !== originalTitle) {
         data.title = title
       }
 
@@ -66,7 +66,7 @@ const WorkSpaceSettings = () => {
           options: {
             replaceTargetUrl: originalIconUrl,
           },
-          onProgressChange:(progressData) => {
+          onProgressChange: (progressData) => {
             setProgress(progressData)
           },
         })
@@ -96,7 +96,6 @@ const WorkSpaceSettings = () => {
     setPreviewUrl(originalIconUrl)
     setIsEditing(false)
   }
-  
 
   const handleImageClick = () => {
     document.getElementById("workspace-icon-input")?.click()
@@ -130,14 +129,19 @@ const WorkSpaceSettings = () => {
             />
 
             {previewUrl ? (
-              
               <>
-                <div className={`w-full h-full bg-gray-400 z-10 bg-image-animated ${imageLoading ? 'block' : 'hidden'}`}></div>
+                <div
+                  className={`w-full h-full bg-gray-400 z-10 bg-image-animated ${
+                    imageLoading ? "block" : "hidden"
+                  }`}
+                ></div>
                 <img
                   src={previewUrl}
                   alt="Workspace Icon Preview"
-                  className={`object-cover w-full h-full rounded-sm ${imageLoading ? 'hidden' : 'block'} transition-opacity duration-300`}
-                  onLoad={()=>setImageLoading(false)}
+                  className={`object-cover w-full h-full rounded-sm ${
+                    imageLoading ? "hidden" : "block"
+                  } transition-opacity duration-300`}
+                  onLoad={() => setImageLoading(false)}
                 />
               </>
             ) : (
@@ -146,35 +150,38 @@ const WorkSpaceSettings = () => {
               </div>
             )}
           </div>
-          <p className="text-xxs text-gray-100/50 my-3">Upload an image or pick an emoji. It will show up in your sidebar and notifications.</p>
+          <p className="text-xxs text-gray-100/50 my-3">
+            Upload an image or pick an emoji. It will show up in your sidebar
+            and notifications.
+          </p>
         </div>
 
         {progress !== null && (
           <div className="absolute bottom-14 w-full h-1 bg-white bg-opacity-30 mt-6">
             <div
               className="h-full bg-white transition-all duration-300 ease-in-out"
-              style={{width: `${progress?progress:5}%`}}
+              style={{width: `${progress ? progress : 5}%`}}
             ></div>
           </div>
         )}
       </div>
-      
-        <div className="space-x-4 mt-4 pt-4 border-t border-white border-opacity-30">
-          <button
-            onClick={handleSave}
-            className={`px-4 py-2 bg-blue-500 text-white rounded-md ${!isEditing?"disabled cursor-not-allowed opacity-35":""}`}
-            
-          >
-            Save
-          </button>
-          <button
-            onClick={handleCancel}
-            className="px-4 py-2 border opacity-65 border-white text-white rounded-md"
-          >
-            Cancel
-          </button>
-        </div>
-     
+
+      <div className="space-x-4 mt-4 pt-4 border-t border-white border-opacity-30">
+        <button
+          onClick={handleSave}
+          className={`px-4 py-2 bg-blue-500 text-white rounded-md ${
+            !isEditing ? "disabled cursor-not-allowed opacity-35" : ""
+          }`}
+        >
+          Save
+        </button>
+        <button
+          onClick={handleCancel}
+          className="px-4 py-2 border opacity-65 border-white text-white rounded-md"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   )
 }

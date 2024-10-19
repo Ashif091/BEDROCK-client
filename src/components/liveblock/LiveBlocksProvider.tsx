@@ -1,6 +1,6 @@
 "use client"
 
-import {createAxiosInstance} from "@/app/utils/axiosInstance "
+import {createAxiosInstance} from "@/app/utils/axiosInstance"
 import {LiveblocksProvider} from "@liveblocks/react/suspense"
 
 const LiveBlocksProvider = ({children}: {children: React.ReactNode}) => {

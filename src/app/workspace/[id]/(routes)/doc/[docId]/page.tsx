@@ -5,7 +5,7 @@ import { useDocumentStore } from "@/stores/documentStore"
 import { useParams } from "next/navigation"
 import { useState, useCallback, useEffect } from "react"
 import { throttle } from "lodash"
-import { createAxiosInstance } from "@/app/utils/axiosInstance "
+import { createAxiosInstance } from "@/app/utils/axiosInstance"
 
 function DocPage() {
   const { docId } = useParams()

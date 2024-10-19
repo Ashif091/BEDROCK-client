@@ -3,7 +3,7 @@ import EditableFullname from "@/components/ui/workspace/editable-fullname"
 import {useAuthStore} from "@/stores/authStore"
 import ProfileImageUploader from "@/components/ui/workspace/profile-uploader"
 import { useRouter } from "next/navigation"
-import { createAxiosInstance } from "@/app/utils/axiosInstance "
+import { createAxiosInstance } from "@/app/utils/axiosInstance"
 
 const Account = () => {
   const api = createAxiosInstance();

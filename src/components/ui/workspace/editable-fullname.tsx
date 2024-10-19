@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react"
 import {useAuthStore} from "../../../stores/authStore"
-import {createAxiosInstance} from "@/app/utils/axiosInstance "
+import {createAxiosInstance} from "@/app/utils/axiosInstance"
 
 
 const EditableFullname: React.FC = () => {

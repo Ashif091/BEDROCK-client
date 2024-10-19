@@ -4,6 +4,7 @@ import Account from "./my-settings/account"
 import SettingsSection from "./my-settings/mysettings"
 import Notifications from "./my-settings/notification"
 import WorkSpaceSettings from "./w-settings/settings"
+import WorkSpacePeople from "./w-settings/people"
 interface SettingsProps {
   toggleSettings: () => void
 }
@@ -18,13 +19,14 @@ const Settings: React.FC<SettingsProps> = ({toggleSettings}) => {
         return <SettingsSection />
       case "Notifications":
         return <Notifications />
-        case "Settings":
-          return <WorkSpaceSettings/>
+      case "Settings":
+        return <WorkSpaceSettings />
+      case "People":
+        return <WorkSpacePeople />
       default:
         return <Account />
     }
   }
-
 
   return (
     <div
@@ -39,7 +41,9 @@ const Settings: React.FC<SettingsProps> = ({toggleSettings}) => {
           activeSection={activeSection}
           setActiveSection={setActiveSection}
         />
-        <div className="flex-1 py-9 md:px-20 px-10 border border-gray-500/25 rounded-e-lg">{renderContent()}</div>
+        <div className="flex-1 py-9 md:px-20 px-10 border border-gray-500/25 rounded-e-lg">
+          {renderContent()}
+        </div>
       </div>
     </div>
   )

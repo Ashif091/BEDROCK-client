@@ -5,6 +5,7 @@ import accountIcon from "../../../../public/settings/account.png"
 import settingsIcon from "../../../../public/settings/equalizer.png"
 import notificationsIcon from "../../../../public/settings/notification.png"
 import settings from "../../../../public/settings/setting.png"
+import people from "../../../../public/settings/group.png"
 import {useAuthStore} from "@/stores/authStore"
 
 interface SidebarProps {
@@ -21,6 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({activeSection, setActiveSection}) => {
   ]
   const workspaceSections = [
     {name: "Settings", icon: settings},
+    {name: "People", icon: people},
   ]
 
   return (

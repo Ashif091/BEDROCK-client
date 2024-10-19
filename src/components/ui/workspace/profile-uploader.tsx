@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react"
 import Image from "next/image"
 import {useAuthStore} from "@/stores/authStore"
 import {useEdgeStore} from "@/lib/edgestore"
-import {createAxiosInstance} from "@/app/utils/axiosInstance "
+import {createAxiosInstance} from "@/app/utils/axiosInstance"
 
 const ProfileImageUploader: React.FC = () => {
   const api = createAxiosInstance()
