@@ -37,7 +37,6 @@ const Workspace = () => {
       </div>
       <Logo className="ml-7 mt-5" width={60} fontSize={"xl"} />
       <div className=" pt-14 pl-36 h-lvh">
-        <p className="text-xl font-alata">Your workspace</p>
         <List />
         <section className=" w-[18rem] h-48 z-10 mt-20   rounded-md border border-gray-100 border-opacity-35  flex items-center justify-center cursor-pointer select-none">
           <div>
