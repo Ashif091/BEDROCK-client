@@ -7,6 +7,7 @@ import notificationsIcon from "../../../../public/settings/notification.png"
 import settings from "../../../../public/settings/setting.png"
 import people from "../../../../public/settings/group.png"
 import {useAuthStore} from "@/stores/authStore"
+import {useWorkspaceStore} from "@/stores/workspaceStore"
 
 interface SidebarProps {
   activeSection: string
@@ -15,6 +16,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({activeSection, setActiveSection}) => {
   const {user} = useAuthStore()
+  const {isOwner} = useWorkspaceStore()
   const sections = [
     {name: "Account", icon: accountIcon},
     {name: "My Settings", icon: settingsIcon},
@@ -30,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({activeSection, setActiveSection}) => {
       <p className="opacity-35 text-xs mb-3 ml-1">Account</p>
       <div className="flex gap-2 ml-2">
         <div className="rounded-full overflow-hidden w-7 h-7 object-cover ">
-        <Image
+          <Image
             src={user?.profile || "/settings/user.png"}
             alt="User Profile"
             width={40}
@@ -65,27 +67,29 @@ const Sidebar: React.FC<SidebarProps> = ({activeSection, setActiveSection}) => {
           </div>
         ))}
       </div>
-      <p className="opacity-35 text-xs mb-3 ml-1">Workspace</p>
-
-      {workspaceSections.map((section) => (
-          <div
-            key={section.name}
-            className={`flex items-center mt-2 gap-3 px-2 mb-1 py-1 cursor-pointer rounded-sm text-xs ${
-              activeSection === section.name ? "bg-[#323232]" : ""
-            }`}
-            onClick={() => setActiveSection(section.name)}
-          >
-            <Image
-              className="opacity-50"
-              src={section.icon}
-              alt={`${section.name} Icon`}
-              width={20}
-              height={20}
-            />
-            <span className="text-white">{section.name}</span>
-          </div>
-        ))}
-
+      {isOwner && (
+        <>
+          <p className="opacity-35 text-xs mb-3 ml-1">Workspace</p>
+          {workspaceSections.map((section) => (
+            <div
+              key={section.name}
+              className={`flex items-center mt-2 gap-3 px-2 mb-1 py-1 cursor-pointer rounded-sm text-xs ${
+                activeSection === section.name ? "bg-[#323232]" : ""
+              }`}
+              onClick={() => setActiveSection(section.name)}
+            >
+              <Image
+                className="opacity-50"
+                src={section.icon}
+                alt={`${section.name} Icon`}
+                width={20}
+                height={20}
+              />
+              <span className="text-white">{section.name}</span>
+            </div>
+          ))}
+        </>
+      )}
     </div>
   )
 }

@@ -1,25 +1,28 @@
 "use client"
 
 import Editor from "@/components/workspace/Editor"
-import { useDocumentStore } from "@/stores/documentStore"
-import { useParams } from "next/navigation"
-import { useState, useCallback, useEffect } from "react"
-import { throttle } from "lodash"
-import { createAxiosInstance } from "@/app/utils/axiosInstance"
+import {useDocumentStore} from "@/stores/documentStore"
+import {useParams} from "next/navigation"
+import {useState, useCallback, useEffect} from "react"
+import {throttle} from "lodash"
+import {createAxiosInstance} from "@/app/utils/axiosInstance"
+import {useAuthStore} from "@/stores/authStore"
 
 function DocPage() {
-  const { docId } = useParams()
+  const {docId} = useParams()
   return (
     <div className="p-4">
       <Title docId={docId as string} />
+
       <Editor />
     </div>
   )
 }
 
-const Title = ({ docId }: { docId: string }) => {
+const Title = ({docId}: {docId: string}) => {
   const api = createAxiosInstance()
-  const { updateDocTitle } = useDocumentStore()
+  const {updateDocTitle} = useDocumentStore()
+  const {role} = useAuthStore()
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState("Untitled")
 
@@ -65,33 +68,43 @@ const Title = ({ docId }: { docId: string }) => {
     }
   }
 
-  const sharedStyles = 'text-3xl mb-4 bg-transparent outline-none border-none'
-
+  const sharedStyles = "text-3xl mb-4 bg-transparent outline-none border-none"
+  if (role !== "viewer")
+    return (
+      <div className="relative">
+        {isEditing ? (
+          <input
+            type="text"
+            className={`${sharedStyles} p-0 focus:outline-none focus:ring-0`}
+            value={title}
+            onChange={handleTitleChange}
+            onBlur={handleTitleBlur}
+            onKeyDown={handleKeyDown} // Capture Enter key press
+            autoFocus // Automatically focus input on editing
+          />
+        ) : (
+          <h1
+            className={`${sharedStyles} cursor-text`}
+            onClick={handleTitleClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Enter" && handleTitleClick()} // Enter to start editing
+            aria-label="Click to edit title"
+          >
+            {title}
+          </h1>
+        )}
+      </div>
+    )
   return (
-    <div className="relative">
-      {isEditing ? (
-        <input
-          type="text"
-          className={`${sharedStyles} p-0 focus:outline-none focus:ring-0`}
-          value={title}
-          onChange={handleTitleChange}
-          onBlur={handleTitleBlur}
-          onKeyDown={handleKeyDown} // Capture Enter key press
-          autoFocus // Automatically focus input on editing
-        />
-      ) : (
-        <h1 
-          className={`${sharedStyles} cursor-text`} 
-          onClick={handleTitleClick}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && handleTitleClick()} // Enter to start editing
-          aria-label="Click to edit title"
-        >
-          {title}
-        </h1>
-      )}
-    </div>
+    <h1
+      className={`text-3xl mb-4 bg-transparent outline-none border-none cursor-text`}
+      role="button"
+      tabIndex={0}
+      aria-label="Click to edit title"
+    >
+      {title}
+    </h1>
   )
 }
 

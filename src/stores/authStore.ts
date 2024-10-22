@@ -16,12 +16,14 @@ interface AuthState {
   user: User | null
   uploading: boolean
   progress: number
+  role: string | null;
   login: (accessToken: string) => Promise<void>
   logout: () => void
   setAccessToken: (token: string) => void
   setUser: (user: User) => void
   setFullname: (fullname: string) => void
   setProfile: (profile: string) => void
+  setRole: (role: string) => void
   setUploading: (uploading: boolean) => void
   setProgress: (progress: number) => void
 }
@@ -34,17 +36,17 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       uploading: false,
       progress: 0,
+      role: null,
       login: async (accessToken) => {
         try {
           set({accessToken, isAuthenticated: true})
-          const response = await axios.get<User>(`${BASE_URL}/auth/users/me`, {
+          const response = await axios.get(`${BASE_URL}/auth/users/me`, {
             withCredentials: true,
           })
-          console.log(response)
           const userData = response.data
           set({
             user: {
-              _id: userData._id,
+              _id: userData.id,
               fullname: userData.fullname,
               email: userData.email,
               verified: userData.verified,
@@ -86,6 +88,7 @@ export const useAuthStore = create<AuthState>()(
           }
           return state
         }),
+      setRole: (role) => set({ role }),
       setUploading: (uploading) => set({uploading}),
       setProgress: (progress) => set({progress}),
     }),

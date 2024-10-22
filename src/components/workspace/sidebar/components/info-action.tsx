@@ -4,10 +4,12 @@ import Image from "next/image"
 import down_arrow from "../../../../../public/sidebar/arrow-down-sign-to-navigate.png"
 import add_ico from "../../../../../public/sidebar/add.png"
 import doc_icon from "../../../../../public/sidebar/document.png"
+import { useAuthStore } from "@/stores/authStore"
 
 const InfoBar = () => {
   const {currentlyWorking} = useWorkspaceStore()
   const {addDocument} = useDocumentStore()
+  const {role} = useAuthStore()
 
   const icon = currentlyWorking?.icon ? currentlyWorking.icon : doc_icon
 
@@ -41,12 +43,14 @@ const InfoBar = () => {
           />
         </span>
       </div>
-      <Image
-        src={add_ico}
-        alt="add"
-        className="w-[18px] cursor-pointer opacity-40"
-        onClick={handleAddDocument} 
-      />
+      {role !== "viewer" && (
+        <Image
+          src={add_ico}
+          alt="add"
+          className="w-[18px] cursor-pointer opacity-40"
+          onClick={handleAddDocument}
+        />
+      )}
     </div>
   )
 }

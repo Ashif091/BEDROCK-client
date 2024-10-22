@@ -13,6 +13,7 @@ interface Workspace {
   _id: string
   title: string
   icon?: string
+  collaborators?: any
   workspaceOwner: string
   ownerInfo: any
 }
@@ -22,8 +23,15 @@ const List = () => {
     []
   )
   const [sharedWorkspaces, setSharedWorkspaces] = useState<Workspace[]>([])
-  const {workspaces, isLoading, error, fetchWorkspaces, setCurrentlyWorking} =
-    useWorkspaceStore()
+  const {
+    workspaces,
+    currentlyWorking,
+    isLoading,
+    error,
+    fetchWorkspaces,
+    setCurrentlyWorking,
+    setIsOwner,
+  } = useWorkspaceStore()
   const api = createAxiosInstance()
   const {logout, user} = useAuthStore()
   const router = useRouter()
@@ -46,6 +54,7 @@ const List = () => {
             _id: workspace._id.toString(),
             title: workspace.title,
             icon: workspace.icon?.toString(),
+            collaborators: workspace?.collaborators,
             workspaceOwner: workspace.workspaceOwner?.toString(),
           }
           const ownerInfo = await api.get(
@@ -57,7 +66,7 @@ const List = () => {
       setSharedWorkspaces(fetchedWorkspaces)
     }
 
-    if (sharedWorkspaceIds&&sharedWorkspaceIds.length > 0) {
+    if (sharedWorkspaceIds && sharedWorkspaceIds.length > 0) {
       fetchingSharedWorkspaces()
     }
   }, [sharedWorkspaceIds])
@@ -65,8 +74,8 @@ const List = () => {
   useEffect(() => {
     fetchWorkspaces()
   }, [fetchWorkspaces])
-  const handleWorkspaceClick = (workspaceId: string) => {
-    setCurrentlyWorking(workspaceId)
+  const handleWorkspaceClick = async (workspaceId: string) => {
+    await setCurrentlyWorking(workspaceId)
     router.push(`/workspace/${workspaceId}/home`)
   }
   const renderWorkspaces = () => {
@@ -119,6 +128,15 @@ const List = () => {
         </section>
       )
     }
+    const workspaceType = (workspace: Workspace) => {
+      const userinfo = workspace.collaborators.find(
+        (data: {email: string; role: string}) => data.email === user?.email
+      )
+        if(userinfo?.role === "viewer")
+      return <p className="opacity-50 text-xs capitalize">read only </p>
+      else
+      return <p className="opacity-50 text-xs capitalize">writable</p>
+    }
 
     return sharedWorkspaces.map((workspace) => (
       <section
@@ -126,28 +144,31 @@ const List = () => {
         onClick={() => handleWorkspaceClick(workspace._id)}
         className="w-[18rem] h-48 z-10 rounded-md ring-[.5px] ring-black bg-[#0f0b4095] cursor-pointer select-none flex flex-col justify-between"
       >
-        <p className="text-xl mt-8 ml-7">{workspace.title}</p>
+        <div className=" mt-8 ml-7">
+          <p className="text-xl">{workspace.title}</p>
+          {workspaceType(workspace)}
+        </div>
         <div className="mb-8 ml-7">
           <p className="opacity-75 mb-1 text-sm">Shared by:</p>
-        <div className="flex gap-2  ">
-          <div className="rounded-full overflow-hidden w-7 h-7 object-cover ">
-            <Image
-              src={workspace.ownerInfo?.profile || "/settings/user.png"}
-              alt="User Profile"
-              width={40}
-              height={40}
-              className="object-fill"
-            />
+          <div className="flex gap-2  ">
+            <div className="rounded-full overflow-hidden w-7 h-7 object-cover ">
+              <Image
+                src={workspace.ownerInfo?.profile || "/settings/user.png"}
+                alt="User Profile"
+                width={40}
+                height={40}
+                className="object-fill"
+              />
+            </div>
+            <div className="flex flex-col justify-center">
+              <p className="text-normal text-white text-xs">
+                {workspace.ownerInfo?.fullname}
+              </p>
+              <p className=" text-white opacity-50 text-xs font-thin ">
+                {workspace.ownerInfo?.email}
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col justify-center">
-            <p className="text-normal text-white text-xs">
-              {workspace.ownerInfo?.fullname}
-            </p>
-            <p className=" text-white opacity-50 text-xs font-thin ">
-              {workspace.ownerInfo?.email}
-            </p>
-          </div>
-        </div>
         </div>
       </section>
     ))
