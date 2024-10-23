@@ -67,7 +67,7 @@ const WorkSpacePeople = () => {
             workspaceId: currentlyWorking?._id,
           },
         })
-        if (!res.data.collaborators){
+        if (!res.data.workspace.collaborators){
           setMembers([])
           setMembersMapData([])
         } 
