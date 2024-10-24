@@ -3,6 +3,7 @@ import {createAxiosInstance} from "@/app/utils/axiosInstance"
 import LoadingEffect from "@/components/effects/screen-loading"
 import withAuth from "@/components/hoc/withAuth"
 import Settings from "@/components/workspace/settings/settings"
+import TrashPanel from "@/components/workspace/sidebar/TrashPanel"
 import SideBar from "@/components/workspace/sidebar/main-bar"
 import {useAuthStore} from "@/stores/authStore"
 import {useWorkspaceStore} from "@/stores/workspaceStore"
@@ -20,6 +21,8 @@ const WorkspaceLayout = ({children}: {children: ReactNode}) => {
     toggleSettings,
     setIsOwner,
     isOwner,
+    isTrashOpen,
+    toggleTrash
   } = useWorkspaceStore()
   const {user, setRole, role} = useAuthStore()
   const api = createAxiosInstance()
@@ -59,6 +62,10 @@ const WorkspaceLayout = ({children}: {children: ReactNode}) => {
         {children}
       </main>
       {isSettingsOpen && <Settings toggleSettings={toggleSettings} />}
+      {isTrashOpen &&       <TrashPanel
+        isOpen={isTrashOpen}
+        onClose={() => toggleTrash()}
+      />}
     </div>
   )
 }

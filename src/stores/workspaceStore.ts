@@ -21,6 +21,7 @@ interface WorkspaceState {
   isLoading: boolean
   error: string | null
   isSettingsOpen: boolean
+  isTrashOpen: boolean
   isOwner: boolean
   fetchWorkspaces: () => Promise<void>
   addWorkspace: (workspace: Workspace) => void
@@ -30,6 +31,7 @@ interface WorkspaceState {
   setTitle: (workspaceId: string, title: string) => void
   setCurrentlyWorking: (workspaceId: string) => Promise<void>
   toggleSettings: () => void
+  toggleTrash: () => void
   setIsOwner: (isOwner: boolean) => void
 }
 
@@ -41,6 +43,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       isLoading: false,
       error: null,
       isSettingsOpen: false,
+      isTrashOpen:false,
       isOwner: false,
       fetchWorkspaces: async () => {
         set({isLoading: true, error: null})
@@ -110,6 +113,10 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       toggleSettings: () =>
         set((state) => ({
           isSettingsOpen: !state.isSettingsOpen,
+        })),
+        toggleTrash: () =>
+        set((state) => ({
+          isTrashOpen: !state.isTrashOpen,
         })),
       setIsOwner: (isOwner) => set({isOwner}),
     }),

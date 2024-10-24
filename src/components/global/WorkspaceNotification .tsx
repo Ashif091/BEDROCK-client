@@ -27,7 +27,7 @@ export function WorkspaceNotification({ data, onClose }: WorkspaceNotificationPr
       initial={{ opacity: 0, x: 300 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 300 }}
-      className="fixed top-4 right-4 w-80 bg-white rounded-lg shadow-lg overflow-hidden"
+      className="fixed top-4 right-4 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50"
     >
       <div className="p-4 text-gray-700">
         <div className="flex items-center justify-between mb-2">
