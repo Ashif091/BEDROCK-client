@@ -2,6 +2,7 @@
 import Image from "next/image"
 import settings_img from "../../../../public/sidebar/setting.png"
 import Trash_img from "../../../../public/sidebar/Trash_img.png"
+import Meet_img from "../../../../public/sidebar/video.png"
 import ActionBar from "./main-actions"
 import {useEffect, useState} from "react"
 import Settings from "../settings/settings"
@@ -70,6 +71,22 @@ const SideBar = ({}) => {
       {role !== "viewer" && (
         <TrashAction isTrashOpen={isTrashOpen} toggleTrash={toggleTrash} />
       )}
+      {/* meet room  */}
+      <div
+        className={`flex items-center text-center p-1 cursor-pointer rounded hover:bg-[#2b2b2b]`}
+        onClick={()=>onClickNavigation("meet")}
+      >
+        <Image
+          src={Meet_img}
+          width={10}
+          height={10}
+          alt="settings"
+          className="w-[18px] mr-2 opacity-45"
+        />
+        <span className="text-white opacity-50 text-sm font-light">
+          Meet Room
+        </span>
+      </div>
     </div>
   )
 }

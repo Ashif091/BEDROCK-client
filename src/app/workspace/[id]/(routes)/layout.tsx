@@ -14,7 +14,7 @@ import {io} from "socket.io-client"
 
 import {ReactNode, useEffect, useState} from "react"
 import {useDocumentStore} from "@/stores/documentStore"
-const socket = io(process.env.NEXT_PUBLIC_SERVER_URL)
+import { useNetworkStore } from "@/stores/networkStore"
 
 const WorkspaceLayout = ({children}: {children: ReactNode}) => {
   const {id} = useParams()
@@ -30,6 +30,7 @@ const WorkspaceLayout = ({children}: {children: ReactNode}) => {
   } = useWorkspaceStore()
   const {user, setRole, role} = useAuthStore()
   const {addDocument} = useDocumentStore()
+  const {socket} = useNetworkStore()
   const api = createAxiosInstance()
   const [loading, setLoading] = useState(true)
   useEffect(() => {
