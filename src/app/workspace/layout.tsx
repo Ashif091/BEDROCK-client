@@ -14,7 +14,7 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (user?.email) {
-      socket.emit("join-room", user.email)
+      socket.emit("notify", user.email)
       socket.on("user-added", (data) => {
         setNotification(data)
       })

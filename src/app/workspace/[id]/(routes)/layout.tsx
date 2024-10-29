@@ -10,7 +10,11 @@ import {useWorkspaceStore} from "@/stores/workspaceStore"
 import Link from "next/link"
 import {useParams} from "next/navigation"
 import {useRouter} from "next/router"
+import {io} from "socket.io-client"
+
 import {ReactNode, useEffect, useState} from "react"
+import {useDocumentStore} from "@/stores/documentStore"
+const socket = io(process.env.NEXT_PUBLIC_SERVER_URL)
 
 const WorkspaceLayout = ({children}: {children: ReactNode}) => {
   const {id} = useParams()
@@ -22,9 +26,10 @@ const WorkspaceLayout = ({children}: {children: ReactNode}) => {
     setIsOwner,
     isOwner,
     isTrashOpen,
-    toggleTrash
+    toggleTrash,
   } = useWorkspaceStore()
   const {user, setRole, role} = useAuthStore()
+  const {addDocument} = useDocumentStore()
   const api = createAxiosInstance()
   const [loading, setLoading] = useState(true)
   useEffect(() => {
@@ -51,6 +56,20 @@ const WorkspaceLayout = ({children}: {children: ReactNode}) => {
       dataSetUp()
     }
   }, [isOwner])
+  // io room  event
+  useEffect(() => {
+    if (currentlyWorking?._id) {
+      socket.emit("updateDoc", currentlyWorking?._id)
+      socket.on("create-doc", (data) => {
+        if (user?._id !== data.createdBy) {
+          addDocument(data.newDocument)
+        }
+      })
+    }
+    return () => {
+      socket.off("create-doc")
+    }
+  }, [currentlyWorking])
 
   if (loading) {
     return <LoadingEffect />
@@ -62,10 +81,9 @@ const WorkspaceLayout = ({children}: {children: ReactNode}) => {
         {children}
       </main>
       {isSettingsOpen && <Settings toggleSettings={toggleSettings} />}
-      {isTrashOpen &&       <TrashPanel
-        isOpen={isTrashOpen}
-        onClose={() => toggleTrash()}
-      />}
+      {isTrashOpen && (
+        <TrashPanel isOpen={isTrashOpen} onClose={() => toggleTrash()} />
+      )}
     </div>
   )
 }

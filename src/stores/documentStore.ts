@@ -49,13 +49,21 @@ export const useDocumentStore = create<DocumentState>()(
       addDocument: async (newDoc: Document) => {
         set({isLoading: true, error: null})
         try {
-          const response = await axios.post(`${BASE_URL}/doc`, newDoc, {
-            withCredentials: true,
-          })
-          set((state) => ({
-            documents: [...state.documents, response.data],
-            isLoading: false,
-          }))
+          if(!newDoc._id){
+            const response = await axios.post(`${BASE_URL}/doc`, newDoc, {
+              withCredentials: true,
+            })
+            set((state) => ({
+              documents: [...state.documents, response.data],
+              isLoading: false,
+            }))
+          }else{
+            set((state) => ({
+              documents: [...state.documents, newDoc],
+              isLoading: false,
+            }))
+          }
+
         } catch (error) {
           set({error: "Failed to add document", isLoading: false})
         }
