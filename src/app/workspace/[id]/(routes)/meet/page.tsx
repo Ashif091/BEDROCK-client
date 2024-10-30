@@ -30,40 +30,21 @@ export default function VideoCallRoom() {
   const [inRoom, setInRoom] = useState(false)
   const [users, setUsers] = useState<User[]>([])
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
-//   const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});
-
   const [peerConnections, setPeerConnections] = useState<{
     [key: string]: PeerConnection
   }>({})
   const localVideoRef = useRef<HTMLVideoElement>(null)
+  const remoteVideoRefs = useRef<{ [key: string]: HTMLVideoElement | null }>({})
 
   const {user} = useAuthStore()
   const {currentlyWorking} = useWorkspaceStore()
+
   useEffect(() => {
-    console.log(" ⤵️~ useEffect ~ localStream:", localStream)
     if (localStream && localVideoRef.current) {
       localVideoRef.current.srcObject = localStream
     }
   }, [localStream])
-  useEffect(() => {
-    if (!socket) return
 
-    socket.on("user-joined", handleUserJoined)
-    socket.on("user-left", handleUserLeft)
-    socket.on("room-users", handleRoomUsers)
-    socket.on("offer", handleOffer)
-    socket.on("answer", handleAnswer)
-    socket.on("ice-candidate", handleIceCandidate)
-
-    return () => {
-      socket.off("user-joined")
-      socket.off("user-left")
-      socket.off("room-users")
-      socket.off("offer")
-      socket.off("answer")
-      socket.off("ice-candidate")
-    }
-  }, [socket,localStream,peerConnections])
   const getMediaStream = useCallback(
     async (faceMode?: string) => {
       try {
@@ -95,97 +76,37 @@ export default function VideoCallRoom() {
     [localStream]
   )
 
-  const joinRoom = async () => {
-    if (socket && currentlyWorking?._id && (user?.fullname as string)) {
-      try {
-        const stream = await getMediaStream()
-        console.log("🚀 ~ joinRoom ~ stream:", stream)
-        if (!stream) {
-          console.log("no stream available")
-          return
-        }
-
-        // if (localVideoRef.current) {
-        //   localVideoRef.current.srcObject = stream
-        // }
-
-        const userData: User = {
-          name: user?.fullname as string,
-          profile: user?.profile as string,
-          socketId: socket.id,
-        }
-
-        socket.emit("join-room", currentlyWorking._id, userData)
-        setInRoom(true)
-      } catch (error) {
-        console.error("Error accessing media devices:", error)
-      }
-    }
-  }
-
-
-
-  const handleUserJoined = useCallback(
-    async (userData: User) => {
-      setUsers((prevUsers) => [...prevUsers, userData])
-      console.log(
-        "🚀 ~ handleUserJoined ~ userData?.socketId:",
-        userData?.socketId
-      )
-  
-      if (userData?.socketId && localStream) {
-        const peerConnection = createPeerConnection(userData.socketId)
-        console.log("🚀 ~ handleUserJoined ~ peerConnection:", peerConnection)
-  
-        const offer = await peerConnection.createOffer()
-        await peerConnection.setLocalDescription(offer)
-        socket.emit("offer", offer, currentlyWorking?._id, userData.socketId)
-      } else {
-        console.warn("Local stream is not available yet")
-      }
-    },
-    [socket, localStream, inRoom]
-  )
-  
-
   const createPeerConnection = useCallback(
     (socketId: string) => {
-      console.log("😥 try to create connection")
-
       const peerConnection = new RTCPeerConnection({iceServers: ICE_SERVERS})
       const remoteStream = new MediaStream()
-      console.log("connection is created , ", peerConnection)
 
-      console.log("🚀 ~ localStream?.getTracks ~ localStream:", localStream)
       if (localStream) {
         localStream.getTracks().forEach((track) => {
           peerConnection.addTrack(track, localStream)
         })
-      } else {
-        console.warn("Local stream is not available yet")
       }
 
-    //   peerConnection.ontrack = (event) => {
-        // const remoteStream = new MediaStream();
-    //     event.streams[0].getTracks().forEach((track) => {
-    //       remoteStream.addTrack(track)
-    //     })
-    //   }
-    peerConnection.ontrack = (event) => {
-        const remoteStream = new MediaStream();
-        event.streams.forEach((stream) => {
-          stream.getTracks().forEach((track) => {
-            remoteStream.addTrack(track);
-          });
-        });
-        // setRemoteStreams((prev) => ({ ...prev, [socketId]: remoteStream }));
-      };
-      
-      console.log("🚀 ~ createPeerConnection ~ peerConnection:", peerConnection)
+      peerConnection.ontrack = (event) => {
+        event.streams[0].getTracks().forEach((track) => {
+          remoteStream.addTrack(track)
+        })
+        
+        // Force update to ensure remote stream is displayed
+        setPeerConnections((prev) => ({
+          ...prev,
+          [socketId]: { peerConnection, remoteStream },
+        }))
+
+        // Ensure the video element is updated with the new stream
+        if (remoteVideoRefs.current[socketId]) {
+          remoteVideoRefs.current[socketId]!.srcObject = remoteStream
+        }
+      }
 
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit(
+          socket?.emit(
             "ice-candidate",
             event.candidate,
             currentlyWorking?._id,
@@ -193,7 +114,11 @@ export default function VideoCallRoom() {
           )
         }
       }
-      console.log("🚀 ~ createPeerConnection ~ peerConnection:", peerConnection)
+
+      // Add connection state change handler
+      peerConnection.onconnectionstatechange = () => {
+        console.log(`Connection state for ${socketId}:`, peerConnection.connectionState)
+      }
 
       setPeerConnections((prev) => ({
         ...prev,
@@ -202,109 +127,161 @@ export default function VideoCallRoom() {
 
       return peerConnection
     },
-    [localStream, socket, inRoom]
+    [localStream, socket, currentlyWorking?._id]
+  )
+
+  const handleUserJoined = useCallback(
+    async (userData: User) => {
+      setUsers((prevUsers) => [...prevUsers, userData])
+      
+      if (userData?.socketId && localStream) {
+        const peerConnection = createPeerConnection(userData.socketId)
+        
+        try {
+          const offer = await peerConnection.createOffer()
+          await peerConnection.setLocalDescription(offer)
+          socket?.emit("offer", offer, currentlyWorking?._id, userData.socketId)
+        } catch (error) {
+          console.error("Error creating offer:", error)
+        }
+      }
+    },
+    [socket, localStream, createPeerConnection, currentlyWorking?._id]
   )
 
   const handleOffer = useCallback(
     async (offer: RTCSessionDescriptionInit, fromSocketId: string) => {
-      console.log("➡️ ~ handleOffer ~ offer:", offer)
-
-      const peerConnection = createPeerConnection(fromSocketId)
-      await peerConnection.setRemoteDescription(
-        new RTCSessionDescription(offer)
-      )
-      const answer = await peerConnection.createAnswer()
-      await peerConnection.setLocalDescription(answer)
-      socket.emit("answer", answer, currentlyWorking?._id, fromSocketId)
+      try {
+        const peerConnection = createPeerConnection(fromSocketId)
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
+        const answer = await peerConnection.createAnswer()
+        await peerConnection.setLocalDescription(answer)
+        socket?.emit("answer", answer, currentlyWorking?._id, fromSocketId)
+      } catch (error) {
+        console.error("Error handling offer:", error)
+      }
     },
-    [inRoom]
+    [createPeerConnection, socket, currentlyWorking?._id]
   )
+
   const handleAnswer = useCallback(
     async (answer: RTCSessionDescriptionInit, fromSocketId: string) => {
-      const peerConnection = peerConnections[fromSocketId]?.peerConnection;
+      const peerConnection = peerConnections[fromSocketId]?.peerConnection
       if (peerConnection) {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-        console.log("✔️ Answer set successfully for socketId:", fromSocketId);
-      } else {
-        console.warn("❗ PeerConnection not found for socketId:", fromSocketId);
+        try {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(answer))
+          console.log("✔️ Answer set successfully for socketId:", fromSocketId)
+        } catch (error) {
+          console.error("Error setting remote description:", error)
+        }
       }
     },
     [peerConnections]
-  );
-  
+  )
+
   const handleIceCandidate = useCallback(
     async (candidate: RTCIceCandidateInit, fromSocketId: string) => {
-      const peerConnection = peerConnections[fromSocketId]?.peerConnection;
+      const peerConnection = peerConnections[fromSocketId]?.peerConnection
       if (peerConnection) {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-        console.log("🧊 ICE Candidate added for socketId:", fromSocketId);
-      } else {
-        console.warn("❗ ICE Candidate could not be added. PeerConnection not found for socketId:", fromSocketId);
+        try {
+          await peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+          console.log("🧊 ICE Candidate added for socketId:", fromSocketId)
+        } catch (error) {
+          console.error("Error adding ICE candidate:", error)
+        }
       }
     },
     [peerConnections]
-  );
-  
+  )
 
-//   const handleAnswer = useCallback(
-//     async (answer: RTCSessionDescriptionInit, fromSocketId: string) => {
-        
-//         const peerConnection = peerConnections[fromSocketId]?.peerConnection
-//         console.log("💯 ~ handleAnswer ~ answer:", peerConnections)
-//       console.log("");
-      
-//       if (peerConnection) {
-//         await peerConnection.setRemoteDescription(
-//           new RTCSessionDescription(answer)
-//         )
-//       }
-//     },
-//     [inRoom,peerConnections]
-//   )
+  useEffect(() => {
+    if (!socket) return
 
-//   const handleIceCandidate = useCallback(
-//     async (candidate: RTCIceCandidateInit, fromSocketId: string) => {
-      
-//       const peerConnection = peerConnections[fromSocketId]?.peerConnection
-//       console.log("🧐 final sdp status id ",fromSocketId ,":", peerConnection)
+    socket.on("user-joined", handleUserJoined)
+    socket.on("user-left", handleUserLeft)
+    socket.on("room-users", handleRoomUsers)
+    socket.on("offer", handleOffer)
+    socket.on("answer", handleAnswer)
+    socket.on("ice-candidate", handleIceCandidate)
 
-//       if (peerConnection) {
-//         await peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-//       }
-//     },
-//     [inRoom,peerConnections]
-//   )
-  const leaveRoom = () => {
-    if (socket && currentlyWorking?._id) {
-      socket.emit("leave-room", currentlyWorking._id)
-      setInRoom(false)
-      setUsers([])
-      localStream?.getTracks().forEach((track) => track.stop())
-      setLocalStream(null)
-      Object.values(peerConnections).forEach((pc) => pc.peerConnection.close())
-      setPeerConnections({})
+    return () => {
+      socket.off("user-joined")
+      socket.off("user-left")
+      socket.off("room-users")
+      socket.off("offer")
+      socket.off("answer")
+      socket.off("ice-candidate")
+    }
+  }, [
+    socket,
+    handleUserJoined,
+    handleOffer,
+    handleAnswer,
+    handleIceCandidate,
+  ])
+
+  const joinRoom = async () => {
+    if (socket && currentlyWorking?._id && user?.fullname) {
+      try {
+        const stream = await getMediaStream()
+        if (!stream) {
+          console.error("Failed to get media stream")
+          return
+        }
+
+        const userData: User = {
+          name: user.fullname,
+          profile: user.profile as string,
+          socketId: socket.id,
+        }
+
+        socket.emit("join-room", currentlyWorking._id, userData)
+        setInRoom(true)
+      } catch (error) {
+        console.error("Error joining room:", error)
+      }
     }
   }
+
   const handleUserLeft = (userData: User) => {
     setUsers((prevUsers) =>
       prevUsers.filter((user) => user.socketId !== userData.socketId)
     )
-    if (peerConnections[userData.socketId]) {
-      peerConnections[userData.socketId].peerConnection.close()
+    if (peerConnections[userData.socketId!]) {
+      peerConnections[userData.socketId!].peerConnection.close()
       const newPeerConnections = {...peerConnections}
-      delete newPeerConnections[userData.socketId]
+      delete newPeerConnections[userData.socketId!]
       setPeerConnections(newPeerConnections)
     }
   }
 
   const handleRoomUsers = (roomUsers: User[]) => {
-    console.log("🚀 ~ handleRoomUsers ~ roomUsers:", roomUsers)
     setUsers(roomUsers)
   }
- useEffect(()=>{
-     console.log("😁 ~ useEffect ~ remoteStreams:", peerConnections)
-    
- },[peerConnections])
+
+  const leaveRoom = () => {
+    if (socket && currentlyWorking?._id) {
+      socket.emit("leave-room", currentlyWorking._id)
+      setInRoom(false)
+      setUsers([])
+      
+      // Cleanup local stream
+      localStream?.getTracks().forEach((track) => track.stop())
+      setLocalStream(null)
+      
+      // Cleanup peer connections
+      Object.values(peerConnections).forEach(({peerConnection}) => {
+        peerConnection.close()
+      })
+      setPeerConnections({})
+      
+      // Clear video refs
+      localVideoRef.current!.srcObject = null
+      Object.values(remoteVideoRefs.current).forEach(ref => {
+        if (ref) ref.srcObject = null
+      })
+    }
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto border p-4 rounded shadow">
@@ -326,26 +303,27 @@ export default function VideoCallRoom() {
                   autoPlay
                   muted
                   playsInline
-                  className="w-full h-auto  border"
+                  className="w-full h-auto border rounded bg-black"
                 />
               </div>
-              {/* {Object.entries(remoteStreams).map(([socketId, stream]) => ( */}
-              {Object.entries(peerConnections).map(
-                ([socketId, {remoteStream}]) => (
-
-                  <div key={socketId}>
-                    <h3 className="text-lg font-semibold mb-2">Remote Video{!remoteStream.active&&"false"}</h3>
-                    <video
-                      autoPlay
-                      playsInline
-                      className="w-full h-auto"
-                      ref={(el) => {
-                        if (el) el.srcObject = remoteStream
-                      }}
-                    />
-                  </div>
-                )
-              )}
+              {Object.entries(peerConnections).map(([socketId, {remoteStream}]) => (
+                <div key={socketId}>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Remote Video {!remoteStream.active && "(Connecting...)"}
+                  </h3>
+                  <video
+                    ref={(el) => {
+                      if (el) {
+                        el.srcObject = remoteStream
+                        remoteVideoRefs.current[socketId] = el
+                      }
+                    }}
+                    autoPlay
+                    playsInline
+                    className="w-full h-auto border rounded bg-black"
+                  />
+                </div>
+              ))}
             </div>
             <h3 className="text-lg font-semibold">Users in Room:</h3>
             <div className="grid grid-cols-3 gap-4">
