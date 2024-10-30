@@ -1,55 +1,64 @@
 "use client"
 
-import React, {useState, useEffect, useRef, useCallback} from "react"
-import {useNetworkStore} from "@/stores/networkStore"
-import {Button} from "@/components/ui/button"
-import {useAuthStore} from "@/stores/authStore"
-import {useWorkspaceStore} from "@/stores/workspaceStore"
-import {Video, VideoOff, Mic, MicOff} from "lucide-react"
+import React, { useState, useEffect, useRef, useCallback } from "react"
+import { useNetworkStore } from "@/stores/networkStore"
+import { Button } from "@/components/ui/button"
+import { useAuthStore } from "@/stores/authStore"
+import { useWorkspaceStore } from "@/stores/workspaceStore"
+import { Video, VideoOff, Mic, MicOff } from "lucide-react"
+
 interface User {
   name: string
   profile: string
   socketId: string | undefined
 }
 
+interface MediaState {
+  videoEnabled: boolean
+  audioEnabled: boolean
+}
+
 interface PeerConnection {
   peerConnection: RTCPeerConnection
   remoteStream: MediaStream
+  mediaState: MediaState
 }
 
 const ICE_SERVERS = [
-  {urls: "stun:stun.l.google.com:19302"},
-  {urls: "stun:stun1.l.google.com:19302"},
-  {urls: "stun:stun2.l.google.com:19302"},
-  {urls: "stun:stun3.l.google.com:19302"},
-  {urls: "stun:stun4.l.google.com:19302"},
+  { urls: "stun:stun.l.google.com:19302" },
+  { urls: "stun:stun1.l.google.com:19302" },
+  { urls: "stun:stun2.l.google.com:19302" },
+  { urls: "stun:stun3.l.google.com:19302" },
+  { urls: "stun:stun4.l.google.com:19302" },
 ]
 
 export default function VideoCallRoom() {
-  const {socket} = useNetworkStore()
+  const { socket } = useNetworkStore()
+  const { user } = useAuthStore()
+  const { currentlyWorking } = useWorkspaceStore()
+
   const [inRoom, setInRoom] = useState(false)
   const [users, setUsers] = useState<User[]>([])
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [peerConnections, setPeerConnections] = useState<{
     [key: string]: PeerConnection
   }>({})
-  const localVideoRef = useRef<HTMLVideoElement>(null)
-  const remoteVideoRefs = useRef<{[key: string]: HTMLVideoElement | null}>({})
-  // New state for audio/video controls
   const [isVideoEnabled, setIsVideoEnabled] = useState(true)
   const [isAudioEnabled, setIsAudioEnabled] = useState(true)
   const [isPreviewActive, setIsPreviewActive] = useState(false)
+  const [peerMediaStates, setPeerMediaStates] = useState<{
+    [key: string]: MediaState
+  }>({})
 
-  const {user} = useAuthStore()
-  const {currentlyWorking} = useWorkspaceStore()
+  const localVideoRef = useRef<HTMLVideoElement>(null)
+  const remoteVideoRefs = useRef<{ [key: string]: HTMLVideoElement | null }>({})
 
   useEffect(() => {
     if (localStream && localVideoRef.current) {
       console.log("Setting local video source", localStream.id)
       localVideoRef.current.srcObject = localStream
-
-      // Ensure video plays
-      localVideoRef.current.play().catch((error) => {
+      
+      localVideoRef.current.play().catch(error => {
         console.error("Error playing local video:", error)
       })
     }
@@ -69,31 +78,30 @@ export default function VideoCallRoom() {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
           video: {
-            width: {min: 640, ideal: 1280, max: 1920},
-            height: {min: 360, ideal: 720, max: 1080},
-            frameRate: {min: 16, ideal: 30, max: 30},
+            width: { min: 640, ideal: 1280, max: 1920 },
+            height: { min: 360, ideal: 720, max: 1080 },
+            frameRate: { min: 16, ideal: 30, max: 30 },
             facingMode: videoDevices.length > 0 ? faceMode : undefined,
           },
         })
 
-        // Set initial track states based on state
-        stream.getVideoTracks().forEach((track) => {
+        stream.getVideoTracks().forEach(track => {
           track.enabled = isVideoEnabled
         })
-        stream.getAudioTracks().forEach((track) => {
+        stream.getAudioTracks().forEach(track => {
           track.enabled = isAudioEnabled
         })
 
         setLocalStream(stream)
         return stream
       } catch (error) {
-        console.error("Error accessing media devices: " + error)
+        console.error("Error accessing media devices:", error)
         return null
       }
     },
     [localStream, isVideoEnabled, isAudioEnabled]
   )
-  // New function to handle preview
+
   const startPreview = async () => {
     const stream = await getMediaStream()
     if (stream) {
@@ -101,22 +109,27 @@ export default function VideoCallRoom() {
     }
   }
 
-  // New function to stop preview
   const stopPreview = () => {
     if (localStream && !inRoom) {
-      localStream.getTracks().forEach((track) => track.stop())
+      localStream.getTracks().forEach(track => track.stop())
       setLocalStream(null)
       setIsPreviewActive(false)
     }
   }
 
-  // New functions to handle audio/video controls
   const toggleVideo = () => {
     if (localStream) {
       const videoTrack = localStream.getVideoTracks()[0]
       if (videoTrack) {
-        videoTrack.enabled = !isVideoEnabled
-        setIsVideoEnabled(!isVideoEnabled)
+        const newState = !isVideoEnabled
+        videoTrack.enabled = newState
+        setIsVideoEnabled(newState)
+        
+        socket?.emit("media-state-change", {
+          type: 'video',
+          enabled: newState,
+          roomId: currentlyWorking?._id,
+        })
       }
     }
   }
@@ -125,16 +138,43 @@ export default function VideoCallRoom() {
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0]
       if (audioTrack) {
-        audioTrack.enabled = !isAudioEnabled
-        setIsAudioEnabled(!isAudioEnabled)
+        const newState = !isAudioEnabled
+        audioTrack.enabled = newState
+        setIsAudioEnabled(newState)
+        
+        socket?.emit("media-state-change", {
+          type: 'audio',
+          enabled: newState,
+          roomId: currentlyWorking?._id,
+        })
       }
     }
   }
 
+  const handleRemoteMediaStateChange = useCallback((userId: string, type: 'video' | 'audio', enabled: boolean) => {
+    console.log(userId,"⏳user chage media :", enabled);
+    
+    setPeerMediaStates(prev => ({
+      ...prev,
+      [userId]: {
+        ...prev[userId],
+        [type === 'video' ? 'videoEnabled' : 'audioEnabled']: enabled
+      }
+    }))
+  }, [peerMediaStates])
+
   const createPeerConnection = useCallback(
     (socketId: string) => {
-      const peerConnection = new RTCPeerConnection({iceServers: ICE_SERVERS})
+      const peerConnection = new RTCPeerConnection({ iceServers: ICE_SERVERS })
       const remoteStream = new MediaStream()
+
+      setPeerMediaStates(prev => ({
+        ...prev,
+        [socketId]: {
+          videoEnabled: true,
+          audioEnabled: true
+        }
+      }))
 
       if (localStream) {
         localStream.getTracks().forEach((track) => {
@@ -145,15 +185,38 @@ export default function VideoCallRoom() {
       peerConnection.ontrack = (event) => {
         event.streams[0].getTracks().forEach((track) => {
           remoteStream.addTrack(track)
+          
+          if (track.kind === 'video') {
+            setPeerMediaStates(prev => ({
+              ...prev,
+              [socketId]: {
+                ...prev[socketId],
+                videoEnabled: track.enabled
+              }
+            }))
+          } else if (track.kind === 'audio') {
+            setPeerMediaStates(prev => ({
+              ...prev,
+              [socketId]: {
+                ...prev[socketId],
+                audioEnabled: track.enabled
+              }
+            }))
+          }
         })
 
-        // Force update to ensure remote stream is displayed
-        setPeerConnections((prev) => ({
+        setPeerConnections(prev => ({
           ...prev,
-          [socketId]: {peerConnection, remoteStream},
+          [socketId]: {
+            peerConnection,
+            remoteStream,
+            mediaState: {
+              videoEnabled: true,
+              audioEnabled: true
+            }
+          }
         }))
 
-        // Ensure the video element is updated with the new stream
         if (remoteVideoRefs.current[socketId]) {
           remoteVideoRefs.current[socketId]!.srcObject = remoteStream
         }
@@ -170,31 +233,34 @@ export default function VideoCallRoom() {
         }
       }
 
-      // Add connection state change handler
       peerConnection.onconnectionstatechange = () => {
-        console.log(
-          `Connection state for ${socketId}:`,
-          peerConnection.connectionState
-        )
+        console.log(`Connection state for ${socketId}:`, peerConnection.connectionState)
       }
 
       setPeerConnections((prev) => ({
         ...prev,
-        [socketId]: {peerConnection, remoteStream},
+        [socketId]: {
+          peerConnection,
+          remoteStream,
+          mediaState: {
+            videoEnabled: true,
+            audioEnabled: true
+          }
+        },
       }))
 
       return peerConnection
     },
-    [localStream, socket, currentlyWorking?._id]
+    [localStream, socket, currentlyWorking?._id,peerMediaStates]
   )
 
   const handleUserJoined = useCallback(
     async (userData: User) => {
       setUsers((prevUsers) => [...prevUsers, userData])
-
+      
       if (userData?.socketId && localStream) {
         const peerConnection = createPeerConnection(userData.socketId)
-
+        
         try {
           const offer = await peerConnection.createOffer()
           await peerConnection.setLocalDescription(offer)
@@ -211,9 +277,7 @@ export default function VideoCallRoom() {
     async (offer: RTCSessionDescriptionInit, fromSocketId: string) => {
       try {
         const peerConnection = createPeerConnection(fromSocketId)
-        await peerConnection.setRemoteDescription(
-          new RTCSessionDescription(offer)
-        )
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
         const answer = await peerConnection.createAnswer()
         await peerConnection.setLocalDescription(answer)
         socket?.emit("answer", answer, currentlyWorking?._id, fromSocketId)
@@ -229,9 +293,7 @@ export default function VideoCallRoom() {
       const peerConnection = peerConnections[fromSocketId]?.peerConnection
       if (peerConnection) {
         try {
-          await peerConnection.setRemoteDescription(
-            new RTCSessionDescription(answer)
-          )
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(answer))
           console.log("✔️ Answer set successfully for socketId:", fromSocketId)
         } catch (error) {
           console.error("Error setting remote description:", error)
@@ -256,6 +318,29 @@ export default function VideoCallRoom() {
     [peerConnections]
   )
 
+  const handleUserLeft = (userData: User) => {
+    setUsers((prevUsers) =>
+      prevUsers.filter((user) => user.socketId !== userData.socketId)
+    )
+    if (peerConnections[userData.socketId!]) {
+      peerConnections[userData.socketId!].peerConnection.close()
+      const newPeerConnections = { ...peerConnections }
+      delete newPeerConnections[userData.socketId!]
+      setPeerConnections(newPeerConnections)
+      
+      // Clean up media states
+      setPeerMediaStates(prev => {
+        const newStates = { ...prev }
+        delete newStates[userData.socketId!]
+        return newStates
+      })
+    }
+  }
+
+  const handleRoomUsers = (roomUsers: User[]) => {
+    setUsers(roomUsers)
+  }
+
   useEffect(() => {
     if (!socket) return
 
@@ -265,6 +350,9 @@ export default function VideoCallRoom() {
     socket.on("offer", handleOffer)
     socket.on("answer", handleAnswer)
     socket.on("ice-candidate", handleIceCandidate)
+    socket.on("media-state-changed", ({ userId, type, enabled }) => {
+      handleRemoteMediaStateChange(userId, type, enabled)
+    })
 
     return () => {
       socket.off("user-joined")
@@ -273,19 +361,28 @@ export default function VideoCallRoom() {
       socket.off("offer")
       socket.off("answer")
       socket.off("ice-candidate")
+      socket.off("media-state-changed")
     }
-  }, [socket, handleUserJoined, handleOffer, handleAnswer, handleIceCandidate])
+  }, [
+    socket,
+    handleUserJoined,
+    handleOffer,
+    handleAnswer,
+    handleIceCandidate,
+    handleRemoteMediaStateChange
+  ])
 
   const joinRoom = async () => {
     if (socket && currentlyWorking?._id && user?.fullname) {
       try {
-        // Use existing stream if preview is active, otherwise get new stream
         const stream = isPreviewActive ? localStream : await getMediaStream()
         if (!stream) {
           console.error("Failed to get media stream")
           return
         }
+
         setLocalStream(stream)
+
         const userData: User = {
           name: user.fullname,
           profile: user.profile as string,
@@ -294,7 +391,7 @@ export default function VideoCallRoom() {
 
         socket.emit("join-room", currentlyWorking._id, userData)
         setInRoom(true)
-        // Double-check video element after joining
+
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream
         }
@@ -304,46 +401,27 @@ export default function VideoCallRoom() {
     }
   }
 
-  const handleUserLeft = (userData: User) => {
-    setUsers((prevUsers) =>
-      prevUsers.filter((user) => user.socketId !== userData.socketId)
-    )
-    if (peerConnections[userData.socketId!]) {
-      peerConnections[userData.socketId!].peerConnection.close()
-      const newPeerConnections = {...peerConnections}
-      delete newPeerConnections[userData.socketId!]
-      setPeerConnections(newPeerConnections)
-    }
-  }
-
-  const handleRoomUsers = (roomUsers: User[]) => {
-    setUsers(roomUsers)
-  }
-
   const leaveRoom = () => {
     if (socket && currentlyWorking?._id) {
       socket.emit("leave-room", currentlyWorking._id)
       setInRoom(false)
       setUsers([])
-
-      // Cleanup local stream
+      
       localStream?.getTracks().forEach((track) => track.stop())
       setLocalStream(null)
       setIsPreviewActive(false)
-
-      // Reset control states
+      
       setIsVideoEnabled(true)
       setIsAudioEnabled(true)
-
-      // Cleanup peer connections
-      Object.values(peerConnections).forEach(({peerConnection}) => {
+      
+      Object.values(peerConnections).forEach(({ peerConnection }) => {
         peerConnection.close()
       })
       setPeerConnections({})
-
-      // Clear video refs
+      setPeerMediaStates({})
+      
       if (localVideoRef.current) localVideoRef.current.srcObject = null
-      Object.values(remoteVideoRefs.current).forEach((ref) => {
+      Object.values(remoteVideoRefs.current).forEach(ref => {
         if (ref) ref.srcObject = null
       })
     }
@@ -357,7 +435,6 @@ export default function VideoCallRoom() {
       <div>
         {!inRoom ? (
           <div className="space-y-4">
-            {/* Preview section */}
             {!isPreviewActive ? (
               <Button onClick={startPreview} className="w-full">
                 Start Preview
@@ -366,15 +443,35 @@ export default function VideoCallRoom() {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Preview</h3>
-                  <video
-                    ref={localVideoRef}
-                    autoPlay
-                    muted
-                    playsInline
-                    className="w-full h-auto border rounded bg-black"
-                  />
+                  <div className="relative">
+                    <video
+                      key="preview-video"
+                      ref={localVideoRef}
+                      autoPlay
+                      muted
+                      playsInline
+                      className="w-full h-auto border rounded bg-black"
+                    />
+                    {!isVideoEnabled && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black rounded-lg">
+                        <div className="flex flex-col items-center  space-y-4">
+                          <img
+                            src={user?.profile}
+                            alt={user?.fullname}
+                            className="w-24 h-24 rounded-full border-2 border-white/20"
+                          />
+                          <div className="text-white text-lg font-medium">
+                            {user?.fullname}
+                          </div>
+                          <div className="flex items-center space-x-2 text-white/60">
+                            <VideoOff className="w-4 h-4" />
+                            <span className="text-sm">Video Off</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {/* Media controls */}
                 <div className="flex justify-center gap-4">
                   <Button
                     variant="secondary"
@@ -382,11 +479,7 @@ export default function VideoCallRoom() {
                     onClick={toggleVideo}
                     className={!isVideoEnabled ? "bg-red-100" : ""}
                   >
-                    {isVideoEnabled ? (
-                      <Video className="h-4 w-4" />
-                    ) : (
-                      <VideoOff className="h-4 w-4" />
-                    )}
+                    {isVideoEnabled ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
                   </Button>
                   <Button
                     variant="secondary"
@@ -394,19 +487,11 @@ export default function VideoCallRoom() {
                     onClick={toggleAudio}
                     className={!isAudioEnabled ? "bg-red-100" : ""}
                   >
-                    {isAudioEnabled ? (
-                      <Mic className="h-4 w-4" />
-                    ) : (
-                      <MicOff className="h-4 w-4" />
-                    )}
+                    {isAudioEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
                   </Button>
                 </div>
                 <div className="flex gap-4">
-                  <Button
-                    onClick={joinRoom}
-                    variant="secondary"
-                    className="flex-1"
-                  >
+                  <Button onClick={joinRoom} variant="secondary" className="flex-1">
                     Join Room
                   </Button>
                   <Button onClick={stopPreview} className="flex-1">
@@ -423,83 +508,89 @@ export default function VideoCallRoom() {
                 <h3 className="text-lg font-semibold mb-2">Local Video</h3>
                 <div className="relative">
                   <video
+                    key="room-video"
                     ref={localVideoRef}
                     autoPlay
                     muted
                     playsInline
                     className="w-full h-auto border rounded bg-black"
                   />
-                  {/* Media controls overlay */}
+                  {!isVideoEnabled && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black rounded-lg">
+                      <div className="flex flex-col items-center space-y-4">
+                        <img
+                          src={user?.profile}
+                          alt={user?.fullname}
+                          className="w-24 h-24 rounded-full border-2 border-white/20"
+                        />
+                        <div className="text-white text-lg font-medium">
+                          {user?.fullname}
+                        </div>
+                        <div className="flex items-center space-x-2 text-white/60">
+                          <VideoOff className="w-4 h-4" />
+                          <span className="text-sm">Video Off</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
                     <Button
                       variant="outline"
                       size="icon"
                       onClick={toggleVideo}
-                      className={`bg-background/80 hover:bg-background/90 ${
-                        !isVideoEnabled ? "bg-red-100" : ""
-                      }`}
+                      className={`bg-background/80 hover:bg-background/90 ${!isVideoEnabled ? "bg-red-100" : ""}`}
                     >
-                      {isVideoEnabled ? (
-                        <Video className="h-4 w-4" />
-                      ) : (
-                        <VideoOff className="h-4 w-4" />
-                      )}
+                      {isVideoEnabled ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
                     </Button>
                     <Button
                       variant="outline"
                       size="icon"
                       onClick={toggleAudio}
-                      className={`bg-background/80 hover:bg-background/90 ${
-                        !isAudioEnabled ? "bg-red-100" : ""
-                      }`}
+                      className={`bg-background/80 hover:bg-background/90 ${!isAudioEnabled ? "bg-red-100" : ""}`}
                     >
-                      {isAudioEnabled ? (
-                        <Mic className="h-4 w-4" />
-                      ) : (
-                        <MicOff className="h-4 w-4" />
-                      )}
+                      {isAudioEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
               </div>
-
-              {Object.entries(peerConnections).map(
-                ([socketId, {remoteStream}]) => {
-                  // last chan
-                  const remoteUser = users.find(
-                    (user) => user.socketId === socketId
-                  )
-                  const isVideoEnabled = remoteStream
-                    .getVideoTracks()
-                    .some((track) => track.enabled)
-
-                  return (
-                    <div key={socketId}>
-                      <h3 className="text-lg font-semibold mb-2">
-                        {remoteUser?.name || "Remote User"}
-                      </h3>
-                      <div className="relative">
-                        <video
-                          ref={(el) => {
-                            if (el) {
-                              el.srcObject = remoteStream
-                              remoteVideoRefs.current[socketId] = el
-                            }
-                          }}
-                          autoPlay
-                          playsInline
-                          className={`w-full h-auto border rounded bg-black ${
-                            !isVideoEnabled ? "hidden" : ""
-                          }`}
-                        />
-                        {/* Fallback profile display when video is disabled */}
-                        {!isVideoEnabled && remoteUser && (
-                          <div className="w-full aspect-video border rounded bg-black/95 flex flex-col items-center justify-center space-y-4">
-                            <img
-                              src={remoteUser.profile}
-                              alt={remoteUser.name}
-                              className="w-24 h-24 rounded-full border-2 border-white/20"
-                            />
+              {Object.entries(peerConnections).map(([socketId, { remoteStream }]) => {
+                const remoteUser = users.find(user => user.socketId === socketId)
+                const mediaState = peerMediaStates[socketId]
+                
+                return (
+                  <div key={socketId}>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {remoteUser?.name || "Remote User"}
+                    </h3>
+                    <div className="relative aspect-video">
+                      <video
+                        ref={(el) => {
+                          if (el) {
+                            el.srcObject = remoteStream
+                            remoteVideoRefs.current[socketId] = el
+                          }
+                        }}
+                        autoPlay
+                        playsInline
+                        className={`absolute inset-0 w-full h-full object-cover rounded-lg bg-black 
+                          ${!mediaState?.videoEnabled ? 'invisible' : 'visible'}`}
+                      />
+                      
+                      {(!mediaState?.videoEnabled && remoteUser) && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black rounded-lg">
+                          <div className="flex flex-col items-center space-y-4">
+                            <div className="relative">
+                              <img
+                                src={remoteUser.profile}
+                                alt={remoteUser.name}
+                                className="w-24 h-24 rounded-full border-2 border-white/20"
+                              />
+                              {!mediaState?.audioEnabled && (
+                                <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-1">
+                                  <MicOff className="w-4 h-4 text-white" />
+                                </div>
+                              )}
+                            </div>
                             <div className="text-white text-lg font-medium">
                               {remoteUser.name}
                             </div>
@@ -508,12 +599,12 @@ export default function VideoCallRoom() {
                               <span className="text-sm">Video Off</span>
                             </div>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
-                  )
-                }
-              )}
+                  </div>
+                )
+              })}
             </div>
             <h3 className="text-lg font-semibold">Users in Room:</h3>
             <div className="grid grid-cols-3 gap-4">
