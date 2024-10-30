@@ -106,7 +106,7 @@ const WorkSpacePeople = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
           <select
-            className="bg-transparent border  w-24  h-9    border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-[#202020] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="border  w-24  h-9 bg-[#272727]    border-gray-300 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-700 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             value={role}
             onChange={(e) => setRole(e.target.value)}
           >
@@ -151,7 +151,7 @@ const WorkSpacePeople = () => {
                   </div>
                 </div>
                 <select
-                  className="bg-transparent border mr-6  w-20 px-2 py-0 h-7 border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block  dark:bg-[#202020] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className=" text-white bg-[#272727] border mr-6  w-20 px-2 py-0 h-7 border-gray-300 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block  dark:bg-[#202020] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   value={member.role}
                   onChange={(e) =>
                     handleRoleChange(e.target.value, member.email)
