@@ -9,6 +9,7 @@ import {useWorkspaceStore} from "@/stores/workspaceStore"
 import {useRouter} from "next/navigation"
 import {useAuthStore} from "@/stores/authStore"
 import {createAxiosInstance} from "@/app/utils/axiosInstance"
+import SubscriptionPlan from "../ui/subscription-plan"
 interface Workspace {
   _id: string
   title: string
@@ -19,6 +20,7 @@ interface Workspace {
 }
 const List = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false)
   const [sharedWorkspaceIds, setSharedWorkspaceIds] = useState<string[] | []>(
     []
   )
@@ -78,6 +80,14 @@ const List = () => {
     await setCurrentlyWorking(workspaceId)
     router.push(`/workspace/${workspaceId}/home`)
   }
+  const addNewWorkspace = () => {
+    // change logic accoding to the SubscriptionPlan
+    if (workspaces.length < 3) {
+      setIsFormOpen(true)
+    } else {
+      setIsSubscriptionOpen(true)
+    }
+  }
   const renderWorkspaces = () => {
     if (isLoading) {
       return Array(2)
@@ -132,10 +142,9 @@ const List = () => {
       const userinfo = workspace.collaborators.find(
         (data: {email: string; role: string}) => data.email === user?.email
       )
-        if(userinfo?.role === "viewer")
-      return <p className="opacity-50 text-xs capitalize">read only </p>
-      else
-      return <p className="opacity-50 text-xs capitalize">writable</p>
+      if (userinfo?.role === "viewer")
+        return <p className="opacity-50 text-xs capitalize">read only </p>
+      else return <p className="opacity-50 text-xs capitalize">writable</p>
     }
 
     return sharedWorkspaces.map((workspace) => (
@@ -179,7 +188,7 @@ const List = () => {
       <p className="text-xl font-alata opacity-75">Your workspace</p>
       <div className="border-b border-gray-100 border-opacity-25 w-[85%] min-h-64 pb-14 flex flex-wrap gap-10 pt-7">
         <section
-          onClick={() => setIsFormOpen(true)}
+          onClick={addNewWorkspace}
           className="w-[18rem] h-48 z-10 rounded-md ring-[.5px] ring-black bg-[#0F0B40] flex items-center justify-center cursor-pointer select-none"
         >
           <div>
@@ -201,6 +210,12 @@ const List = () => {
             onClose={() => setIsFormOpen(false)}
           />
         )}
+        {isSubscriptionOpen && (
+          <SubscriptionPlan
+            isOpen={isSubscriptionOpen}
+            onClose={() => setIsSubscriptionOpen(false)}
+          />
+        )}  
       </div>
       <p className="text-xl font-alata my-2 opacity-75">Shared workspace</p>
 
