@@ -1,34 +1,35 @@
 "use client"
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from "react"
 
 import * as d3 from "d3"
 import {useRouter} from "next/navigation"
-import axios from 'axios';
+import axios from "axios"
+import {useDocumentStore} from "@/stores/documentStore"
+import { useWorkspaceStore } from "@/stores/workspaceStore"
 
 interface NodeData {
-  id: string
+  id: string 
   label: string
   link: string[]
 }
 const Graph: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const {documents, fetchDocuments} = useDocumentStore()
+  const {currentlyWorking} = useWorkspaceStore()
+  // const [graphData, setGraphData] = useState<NodeData[]>()
   const defaultNodes: NodeData[] = [
-    // Existing complex graph
-    { id: "a", label: "Node A", link: ["b", "c", "e", "f"] }, 
-    { id: "b", label: "Node B", link: ["a", "d", "g"] },      
-    { id: "c", label: "Node C", link: ["a", "f"] },           
-    { id: "d", label: "Node D", link: ["b", "h"] },           
-    { id: "e", label: "Node E", link: ["a", "f", "g"] },      
-    { id: "f", label: "Node F", link: ["a", "c", "e"] },      
-    { id: "g", label: "Node G", link: ["b", "e", "h"] },      
-    { id: "h", label: "Node H", link: ["d", "g"] },           
-    { id: "i", label: "Node I", link: [] }, 
-
-  ];
-  
-  
-  const [nodes, setNodes] = useState<NodeData[]>(defaultNodes)
+    {id: "Untitled", label: "Untitled", link: []},
+  ]
+  const [nodes, setNodes] = useState<NodeData[]|any>(defaultNodes)
   const router = useRouter()
+  useEffect(() => {
+    const data =documents.map((doc) => ({
+      id: doc._id,
+      label: doc.title,
+      link: doc.edges || [],
+    }))
+    setNodes(data)
+  }, [documents])
 
 
   useEffect(() => {
@@ -36,8 +37,8 @@ const Graph: React.FC = () => {
     const width = containerRef.current?.offsetWidth || 600
     const height = containerRef.current?.offsetHeight || 400
 
-    const links = nodes.flatMap((node) =>
-      node.link.map((targetId) => ({
+    const links = nodes.flatMap((node:any) =>
+      node.link.map((targetId:any) => ({
         source: node.id,
         target: targetId,
       }))
@@ -118,7 +119,7 @@ const Graph: React.FC = () => {
       label.attr("x", (d: any) => d.x).attr("y", (d: any) => d.y)
     })
 
-    function drag(simulation) {
+    function drag(simulation: any) {
       return d3
         .drag()
         .on("start", (event, d: any) => {
@@ -141,14 +142,14 @@ const Graph: React.FC = () => {
       node.attr("fill", (n: any) => (n.id === d.id ? "#7356ef" : "#ccc"))
 
       // __________________
-      link.attr("stroke", (l) =>
+      link.attr("stroke", (l: any) =>
         l.source.id === d.id || l.target.id === d.id ? "#7356ef" : "#ccc"
       )
       //   ____________________
-      label.attr("fill", (n) =>
+      label.attr("fill", (n:any) =>
         n.id === d.id ||
         links.some(
-          (link) =>
+          (link: any) =>
             (link.source.id === d.id && link.target.id === n.id) ||
             (link.target.id === d.id && link.source.id === n.id)
         )
@@ -156,17 +157,17 @@ const Graph: React.FC = () => {
           : "#4e4e4e"
       )
       // _________________________
-      node.attr("opacity", (n) =>
+      node.attr("opacity", (n:any) =>
         n.id === d.id ||
         links.some(
-          (link) =>
+          (link: any) =>
             (link.source.id === d.id && link.target.id === n.id) ||
             (link.target.id === d.id && link.source.id === n.id)
         )
           ? 1
           : 0.2
       )
-      link.attr("stroke-opacity", (l) =>
+      link.attr("stroke-opacity", (l: any) =>
         l.source.id === d.id || l.target.id === d.id ? 1 : 0.2
       )
     }
@@ -177,21 +178,14 @@ const Graph: React.FC = () => {
       label.attr("fill", "#fff").attr("opacity", 1)
     }
     function handleClick(event: any, d: any) {
-      router.push(`/documents/${d.id}`)
+      router.push(`/workspace/${currentlyWorking?._id}/doc/${d.id}`)
     }
     return () => {
       d3.select("#d3").selectAll("*").remove()
     }
   }, [nodes])
 
-  return (
-    <div
-      ref={containerRef}
-      id="d3"
-      className="w-full h-full"
-    ></div>
-  )
+  return <div ref={containerRef} id="d3" className="w-full h-full"></div>
 }
 
-
-export default Graph;
+export default Graph
