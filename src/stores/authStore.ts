@@ -8,6 +8,7 @@ interface User {
   email: string
   profile?: string
   verified?: boolean
+  subscription?:any
 }
 
 interface AuthState {

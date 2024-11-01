@@ -10,6 +10,7 @@ import {useRouter} from "next/navigation"
 import {useAuthStore} from "@/stores/authStore"
 import {createAxiosInstance} from "@/app/utils/axiosInstance"
 import SubscriptionPlan from "../ui/subscription-plan"
+import { Toaster, toast } from 'sonner';
 interface Workspace {
   _id: string
   title: string
@@ -80,13 +81,23 @@ const List = () => {
     await setCurrentlyWorking(workspaceId)
     router.push(`/workspace/${workspaceId}/home`)
   }
-  const addNewWorkspace = () => {
+  const addNewWorkspace = async () => {
     // change logic accoding to the SubscriptionPlan
-    if (workspaces.length < 3) {
-      setIsFormOpen(true)
-    } else {
-      setIsSubscriptionOpen(true)
+    try {
+      const workspaceCount = await api.get("/auth/user/limit")
+      if(!workspaceCount.data)return null
+      if (workspaces.length < workspaceCount.data.workspaceCount) {
+        setIsFormOpen(true)
+      } else if(!workspaceCount.data.status) {
+        setIsSubscriptionOpen(true)
+      }else{
+        toast.warning('Your subscription limt exceeded')
+      }
+    } catch (error) {
+      console.log("error with add workspace",error);
+      
     }
+
   }
   const renderWorkspaces = () => {
     if (isLoading) {
@@ -222,6 +233,7 @@ const List = () => {
       <div className="border-b border-gray-100 border-opacity-25 w-[85%] min-h-64 pb-14 flex flex-wrap gap-10 pt-7">
         {renderSharedWorkspaces()}
       </div>
+      <Toaster position="bottom-right" />
     </>
   )
 }
