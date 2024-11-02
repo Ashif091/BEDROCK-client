@@ -2,7 +2,7 @@
 import React, {useEffect, useState} from "react"
 import {useParams, useRouter} from "next/navigation"
 import {useWorkspaceStore} from "@/stores/workspaceStore"
-import withAuth from "@/components/hoc/withAuth"
+import WithAuth from "@/components/hoc/withAuth"
 import LoadingEffect from "@/components/effects/screen-loading"
 import SideBar from "@/components/workspace/sidebar/main-bar"
 import Home from "@/components/workspace/sidebar/components/home"
@@ -50,4 +50,4 @@ const WorkspaceDetail = () => {
   )
 }
 
-export default withAuth(WorkspaceDetail)
+export default WithAuth(WorkspaceDetail)

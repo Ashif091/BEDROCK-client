@@ -1,7 +1,7 @@
 "use client"
 import Header from '@/components/landing-page/header';
 import React from 'react'
-import nonAuth from '@/components/hoc/nonAuth';
+import NonAuth from '@/components/hoc/nonAuth';
 import Footer from '@/components/landing-page/footer';
 const HomePageLayout = ({ children }: { children: React.ReactNode }) => {
 
@@ -14,4 +14,4 @@ const HomePageLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default nonAuth(HomePageLayout)
+export default NonAuth(HomePageLayout)

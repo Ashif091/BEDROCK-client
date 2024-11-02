@@ -1,7 +1,7 @@
 "use client"
 import {createAxiosInstance} from "@/app/utils/axiosInstance"
 import LoadingEffect from "@/components/effects/screen-loading"
-import withAuth from "@/components/hoc/withAuth"
+import WithAuth from "@/components/hoc/withAuth"
 import Settings from "@/components/workspace/settings/settings"
 import TrashPanel from "@/components/workspace/sidebar/TrashPanel"
 import SideBar from "@/components/workspace/sidebar/main-bar"
@@ -89,4 +89,4 @@ const WorkspaceLayout = ({children}: {children: ReactNode}) => {
   )
 }
 
-export default withAuth(WorkspaceLayout)
+export default WithAuth(WorkspaceLayout)

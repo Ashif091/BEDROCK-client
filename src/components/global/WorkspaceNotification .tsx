@@ -49,7 +49,7 @@ export function WorkspaceNotification({ data, onClose }: WorkspaceNotificationPr
           <span className="font-medium">{data.workspaceName}</span>
         </div>
         <p className="text-sm text-gray-600 mb-2">
-          You've been added to this workspace as a <span className="font-semibold">{data.role}</span>.
+          You&apos;ve been added to this workspace as a <span className="font-semibold">{data.role}</span>.
         </p>
         <div className="flex items-center">
           {data.userAddedBy.profile && (

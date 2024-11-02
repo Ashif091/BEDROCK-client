@@ -3,7 +3,7 @@ import {useRouter} from "next/navigation"
 import {useEffect, useState} from "react"
 import {useAuthStore} from "../../stores/authStore"
 
-const nonAuth = <P extends {}>(WrappedComponent: React.ComponentType<P>) => {
+const NonAuth = <P extends {}>(WrappedComponent: React.ComponentType<P>) => {
   return (props: any) => {
     const [isClient, setIsClient] = useState(false)
     const {isAuthenticated} = useAuthStore()
@@ -27,4 +27,4 @@ const nonAuth = <P extends {}>(WrappedComponent: React.ComponentType<P>) => {
   }
 }
 
-export default nonAuth
+export default NonAuth

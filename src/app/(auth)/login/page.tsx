@@ -6,7 +6,7 @@ import grap_img from "../../../../public/gaph3d.png"
 import {loginSchema, LoginFormData} from "@/Types/Schema"
 import {useAuthStore} from "@/stores/authStore"
 
-import nonAuth from "../../../components/hoc/nonAuth"
+import NonAuth from "../../../components/hoc/nonAuth"
 import {useForm} from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod"
 import Link from "next/link"
@@ -182,4 +182,4 @@ const LoginPage = () => {
   )
 }
 
-export default nonAuth(LoginPage) 
+export default NonAuth(LoginPage) 

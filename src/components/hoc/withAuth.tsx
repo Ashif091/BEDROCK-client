@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useAuthStore } from "../../stores/authStore"
 
-const withAuth = (WrappedComponent: any) => {
+const WithAuth = (WrappedComponent: any) => {
   return (props: any) => {
     const { isAuthenticated } = useAuthStore()
     const [isClient, setIsClient] = useState(false)
@@ -29,4 +29,4 @@ const withAuth = (WrappedComponent: any) => {
   }
 }
 
-export default withAuth
+export default WithAuth

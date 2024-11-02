@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react"
 import Image from "next/image"
 import Logo from "../../../../public/logo-dark.png"
 import grap_img from "../../../../public/gaph3d.png"
-import nonAuth from "../../../components/hoc/nonAuth"
+import NonAuth from "../../../components/hoc/nonAuth"
 import {useRouter} from "next/navigation"
 import {useForm} from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod"
@@ -15,7 +15,7 @@ import {signUpSchema} from "@/Types/Schema"
 import SignInWithGoogle from "@/components/ui/auth/signIn-google"
 import SignInWithGit from "@/components/ui/auth/signin-git"
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
-const signupPage = () => {
+const SignupPage = () => {
   const [mounted, setMounted] = useState(false)
   
   const router = useRouter()
@@ -191,4 +191,4 @@ const signupPage = () => {
   )
 }
 
-export default nonAuth(signupPage)
+export default NonAuth(SignupPage)

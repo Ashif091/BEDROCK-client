@@ -1,6 +1,6 @@
 "use client"
 import {useEffect, useState} from "react"
-import withAuth from "../../components/hoc/withAuth"
+import WithAuth from "../../components/hoc/withAuth"
 import Logo from "@/components/ui/logo"
 import List from "@/components/workspace-list/list"
 import Image from "next/image"
@@ -92,4 +92,4 @@ const Workspace = () => {
   )
 }
 
-export default withAuth(Workspace)
+export default WithAuth(Workspace)
