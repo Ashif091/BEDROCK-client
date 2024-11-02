@@ -66,7 +66,7 @@ const Graph: React.FC = () => {
         g.attr("transform", event.transform.toString())
       })
 
-    svg.call(zoom as any)
+    svg.call(zoom as unknown as (selection: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>) => void)
 
     const simulation = d3
       .forceSimulation<NodeData>(nodes)
@@ -98,7 +98,7 @@ const Graph: React.FC = () => {
       .join("circle")
       .attr("r", 8)
       .attr("fill", "#666")
-      .call(drag(simulation) as any)
+      .call(drag(simulation) as unknown as (selection: d3.Selection<d3.BaseType, NodeData, SVGGElement, unknown>) => void)
       .on("mouseover", handleMouseOver)
       .on("mouseout", handleMouseOut)
       .on("click", handleClick)
