@@ -20,7 +20,7 @@ import { createAxiosInstance } from "@/app/utils/axiosInstance"
 
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL 
 
-const LoginPage = () => {
+const LoginPage: React.FC = () => {
   const login = useAuthStore((state) => state.login)
   const setUser = useAuthStore((state) => state.setUser)
   const accessToken = useAuthStore((state) => state.accessToken)

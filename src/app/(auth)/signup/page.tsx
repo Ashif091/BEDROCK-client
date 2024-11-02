@@ -15,7 +15,7 @@ import {signUpSchema} from "@/Types/Schema"
 import SignInWithGoogle from "@/components/ui/auth/signIn-google"
 import SignInWithGit from "@/components/ui/auth/signin-git"
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
-const SignupPage = () => {
+const SignupPage : React.FC= () => {
   const [mounted, setMounted] = useState(false)
   
   const router = useRouter()

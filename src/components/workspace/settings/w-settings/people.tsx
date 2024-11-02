@@ -94,7 +94,7 @@ const WorkSpacePeople = () => {
       <p className="text-sm font-extralight opacity-65 ">People</p>
       <div className="flex justify-between my-4 gap-2 border-y-[.1rem] border-gray-50/10 py-2 items-center">
         <p className="text-xs font-thin w-2/5">
-          Invite any email; they'll receive a workspace invitation if they don’t
+          Invite any email; they&apos;ll receive a workspace invitation if they don&apos;t
           have an account.{" "}
         </p>
         <div className="flex gap-2 items-center">
@@ -130,7 +130,7 @@ const WorkSpacePeople = () => {
         <div className="overflow-hidden h-60  overflow-y-scroll side-scrollbar">
           {membersMapData.map((member: any) => {
             return (
-              <div className="flex justify-between ml-2 border-b-[.1rem] border-gray-50/10 py-2 ">
+              <div key={member?.email} className="flex justify-between ml-2 border-b-[.1rem] border-gray-50/10 py-2 ">
                 <div className="flex gap-2">
                   <div className="rounded-full overflow-hidden w-7 h-7 object-cover">
                     <Image

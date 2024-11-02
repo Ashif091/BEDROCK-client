@@ -111,7 +111,7 @@ const WorkspaceForm: React.FC<WorkspaceFormProps> = ({isOpen, onClose}) => {
             <h2 className="text-3xl mb-6">Create a Workspace</h2>
           </div>
           <h1 className="text-4xl font-alata font-light">
-            Let's start with a name for <br />
+            Let&apos;s start with a name for <br />
             your project
           </h1>
           <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>

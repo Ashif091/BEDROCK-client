@@ -9,7 +9,7 @@ import Home from "@/components/workspace/sidebar/components/home"
 import Graph from "@/components/workspace/sidebar/components/graph"
 import DocumentDetail from "@/components/workspace/document-detail "
 
-const WorkspaceDetail = () => {
+const WorkspaceDetail : React.FC= () => {
   const {id} = useParams()
   const router = useRouter()
   const {fetchWorkspaces, currentlyWorking} = useWorkspaceStore()

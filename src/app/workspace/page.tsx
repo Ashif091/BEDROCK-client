@@ -8,7 +8,7 @@ import explore from "../../../public/explore.png"
 import link_icon from "../../../public/foreign.png"
 import Link from "next/link"
 import SparkleEffect from "@/components/effects/sparkles"
-const Workspace = () => {
+const Workspace : React.FC= () => {
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
