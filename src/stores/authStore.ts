@@ -1,14 +1,16 @@
-import {create} from "zustand"
-import {persist} from "zustand/middleware"
+import { create } from "zustand"
+import { persist, createJSONStorage } from "zustand/middleware"
 import axios from "axios"
+
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+
 interface User {
   _id: string
   fullname: string
   email: string
   profile?: string
   verified?: boolean
-  subscription?:any
+  subscription?: any
 }
 
 interface AuthState {
@@ -17,7 +19,7 @@ interface AuthState {
   user: User | null
   uploading: boolean
   progress: number
-  role: string | null;
+  role: string | null
   login: (accessToken: string) => Promise<void>
   logout: () => void
   setAccessToken: (token: string) => void
@@ -96,7 +98,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
-      getStorage: () => localStorage,
+      storage: createJSONStorage(() => localStorage),
     }
   )
 )

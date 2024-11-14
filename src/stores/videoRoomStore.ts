@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist ,createJSONStorage} from "zustand/middleware";
 import { io, Socket } from "socket.io-client";
 
 interface User {
@@ -78,7 +78,14 @@ export const useVideoRoomStore = create<VideoRoomStore>()(
     }),
     {
       name: "video-room-store",
-      getStorage: () => localStorage,
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        inRoom: state.inRoom,
+        users: state.users,
+        isVideoEnabled: state.isVideoEnabled,
+        isAudioEnabled: state.isAudioEnabled,
+        isPreviewActive: state.isPreviewActive,
+      }),
     }
   )
 );

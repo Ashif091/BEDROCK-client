@@ -1,5 +1,5 @@
 import {create} from "zustand"
-import {persist} from "zustand/middleware"
+import {createJSONStorage, persist} from "zustand/middleware"
 import axios from "axios"
 
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
@@ -122,7 +122,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     }),
     {
       name: "workspace-storage",
-      getStorage: () => localStorage,
+      storage: createJSONStorage(() => localStorage),
     }
   )
 )

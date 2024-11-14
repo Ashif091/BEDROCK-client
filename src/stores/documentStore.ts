@@ -1,5 +1,5 @@
-import {create} from "zustand"
-import {persist} from "zustand/middleware"
+import { create } from "zustand"
+import { persist, createJSONStorage } from "zustand/middleware"
 import axios from "axios"
 
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
@@ -69,7 +69,6 @@ export const useDocumentStore = create<DocumentState>()(
         }
       },
 
-      // Update an existing document
       updateDocument: (updatedDoc: Document) => {
         set((state) => ({
           documents: state.documents.map((doc) =>
@@ -77,6 +76,7 @@ export const useDocumentStore = create<DocumentState>()(
           ),
         }))
       },
+
       updateDocTitle: async (documentId: string, newTitle: string) => {
         set({isLoading: true, error: null})
         try {
@@ -86,7 +86,6 @@ export const useDocumentStore = create<DocumentState>()(
             ),
           }))
 
-          // Then, send the updated title to the backend
           await axios.put(
             `${BASE_URL}/doc/${documentId}`,
             {title: newTitle},
@@ -99,7 +98,6 @@ export const useDocumentStore = create<DocumentState>()(
         }
       },
 
-      // Delete a document by its ID
       deleteDocument: (documentId: string) => {
         set((state) => ({
           documents: state.documents.filter((doc) => doc._id !== documentId),
@@ -108,7 +106,7 @@ export const useDocumentStore = create<DocumentState>()(
     }),
     {
       name: "document-storage",
-      getStorage: () => localStorage, // Using localStorage for persistence
+      storage: createJSONStorage(() => localStorage),
     }
   )
 )
