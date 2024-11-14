@@ -16,6 +16,7 @@ import {useRouter} from "next/navigation"
 import SignInWithGoogle from "@/components/ui/auth/signIn-google"
 import SignInWithGit from "@/components/ui/auth/signin-git"
 import { createAxiosInstance } from "@/app/utils/axiosInstance"
+import Cookies from "js-cookie"
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL 
@@ -68,6 +69,10 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     setMounted(true)
+    const accessToken = Cookies.get("accessToken")
+    if (accessToken) {
+      login(accessToken)
+    }
   }, [])
   useEffect(() => {
     console.log(Object.values(errors))

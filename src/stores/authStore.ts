@@ -1,8 +1,8 @@
-import { create } from "zustand"
-import { persist, createJSONStorage } from "zustand/middleware"
+import {create} from "zustand"
+import {persist, createJSONStorage} from "zustand/middleware"
 import axios from "axios"
 
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL
 
 interface User {
   _id: string
@@ -42,10 +42,13 @@ export const useAuthStore = create<AuthState>()(
       role: null,
       login: async (accessToken) => {
         try {
+          console.log("zustand login", accessToken)
+
           set({accessToken, isAuthenticated: true})
           const response = await axios.get(`${BASE_URL}/auth/users/me`, {
             withCredentials: true,
           })
+          console.log("zustand user info after login ",response)
           const userData = response.data
           set({
             user: {
@@ -92,7 +95,7 @@ export const useAuthStore = create<AuthState>()(
           }
           return state
         }),
-      setRole: (role) => set({ role }),
+      setRole: (role) => set({role}),
       setUploading: (uploading) => set({uploading}),
       setProgress: (progress) => set({progress}),
     }),
