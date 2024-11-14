@@ -46,6 +46,7 @@ const LoginPage: React.FC = () => {
           position: "top-center",
         })
         if (response.data.accessToken &&response.data.userInfo) {
+          console.log("user login info :",response.data)
           login(response.data.accessToken)
           setUser(response.data.userInfo)
         }
