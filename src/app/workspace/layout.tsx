@@ -19,7 +19,7 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!socketRef.current) {
       socketRef.current = io(process.env.NEXT_PUBLIC_SERVER_URL!, {
-        path: '/api/socket.io',
+        path: '/app/socket.io',
         // transports: ['websocket', 'polling'],
         // secure:true,
         // rejectUnauthorized: false,
