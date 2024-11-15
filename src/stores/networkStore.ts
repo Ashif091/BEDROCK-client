@@ -1,19 +1,16 @@
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { io, Socket } from "socket.io-client";
+import { create } from "zustand"
+import { persist, createJSONStorage } from "zustand/middleware"
+import { io, Socket } from "socket.io-client"
 
 interface NetworkStore {
-  socket: Socket;
-  setSocket: (socket: Socket) => void;
+  socket: Socket
+  setSocket: (socket: Socket) => void
 }
 
 export const useNetworkStore = create<NetworkStore>()(
   persist(
     (set) => ({
-      socket: io(process.env.NEXT_PUBLIC_SERVER_URL, {
-        path: "/socket.io",
-        transports: ["websocket"], // to resolve io req issue
-      }),
+      socket: io(process.env.NEXT_PUBLIC_SERVER_URL),
       setSocket: (socket) => set({ socket }),
     }),
     {
@@ -21,4 +18,4 @@ export const useNetworkStore = create<NetworkStore>()(
       storage: createJSONStorage(() => localStorage),
     }
   )
-);
+)
