@@ -12,6 +12,8 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthStore()
   const [notification, setNotification] = useState<any>(null)
   // const {socket} = useNetworkStore()
+  console.log("server url ,:",process.env.NEXT_PUBLIC_SERVER_URL);
+  
   const socket = io(process.env.NEXT_PUBLIC_SERVER_URL)
   
   useEffect(() => {
