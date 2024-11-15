@@ -11,7 +11,8 @@ import { useNetworkStore } from "@/stores/networkStore"
 const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthStore()
   const [notification, setNotification] = useState<any>(null)
-  const {socket} = useNetworkStore()
+  // const {socket} = useNetworkStore()
+  const socket = io(process.env.NEXT_PUBLIC_SERVER_URL)
   
   useEffect(() => {
     if (user?.email) {
