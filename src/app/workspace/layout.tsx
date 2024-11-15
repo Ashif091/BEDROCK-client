@@ -20,6 +20,7 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
         setNotification(data)
       })
     }
+    console.log("socket layout from network ;",socket)
     return () => {
       socket.off("user-added")
     }
