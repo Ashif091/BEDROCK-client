@@ -6,17 +6,26 @@ import Image from "next/image"
 import tap_png from "../../../public/tap_phone.png"
 import {useAuthStore} from "@/stores/authStore"
 import Cookies from "js-cookie"
+import { useSearchParams } from "next/navigation"
 const Home = () => {
   const [mounted, setMounted] = useState(false)
   const {login} = useAuthStore()
+  const searchParams = useSearchParams()
   useEffect(() => {
     setMounted(true)
     document.body.classList.add("dark-scrollbar")
-    const accessToken = Cookies.get("accessToken")
+    // const accessToken = Cookies.get("accessToken")
+    // if (accessToken) {
+    //   login(accessToken)
+    // }
+  }, [])
+  useEffect(() => {   
+    const accessToken = searchParams.get('accessToken')
     if (accessToken) {
       login(accessToken)
     }
-  }, [])
+  }, [searchParams]);
+
   if (!mounted) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-[#010027] bg-opacity-75">
