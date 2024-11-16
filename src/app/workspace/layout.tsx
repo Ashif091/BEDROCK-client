@@ -20,9 +20,9 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
     if (!socketRef.current) {
       socketRef.current = io(process.env.NEXT_PUBLIC_SERVER_URL!, {
         path: '/app/socket.io',
-        transports: ['websocket', 'polling'],
+        // transports: ['websocket', 'polling'],
         secure:true,
-        // rejectUnauthorized: false,
+        rejectUnauthorized: false,
         // reconnection: true,
         // reconnectionAttempts: 5,
         // reconnectionDelay: 1000,
