@@ -1,7 +1,7 @@
 'use client'
 
 import { io } from "socket.io-client"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuthStore } from "@/stores/authStore"
 import { AnimatePresence } from 'framer-motion'
 import { WorkspaceNotification } from "@/components/global/WorkspaceNotification "
@@ -11,28 +11,17 @@ import { useNetworkStore } from "@/stores/networkStore"
 const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthStore()
   const [notification, setNotification] = useState<any>(null)
-  // const {socket} = useNetworkStore()
-  console.log("server url ,:",process.env.NEXT_PUBLIC_SERVER_URL);
+  const {socket} = useNetworkStore()
   
-  // const socket = io(process.env.NEXT_PUBLIC_SERVER_URL)
-  const socketRef = useRef<any>(null)
   useEffect(() => {
-    if (!socketRef.current) {
-      socketRef.current = io(process.env.NEXT_PUBLIC_SERVER_URL)
-    }
     if (user?.email) {
-      socketRef.current.emit("notify", user.email)
-      socketRef.current.on("user-added", (data:any) => {
+      socket.emit("notify", user.email)
+      socket.on("user-added", (data) => {
         setNotification(data)
       })
     }
-    socketRef.current.on('connect', () => {
-      console.log('Socket connected:', socketRef.current.id)
-    })
-    console.log("socket layout from network ;",socketRef.current)
     return () => {
-      socketRef.current.off("user-added")
-      socketRef.current.off("connect")
+      socket.off("user-added")
     }
   }, [user])
 
