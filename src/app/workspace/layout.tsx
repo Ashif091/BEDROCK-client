@@ -18,15 +18,7 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
   const socketRef = useRef<any>(null)
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io(process.env.NEXT_PUBLIC_SERVER_URL, {
-        path: '/app/socket.io',
-        // transports: ['websocket', 'polling'],
-        // secure:false,
-        // rejectUnauthorized: false,
-        // reconnection: true,
-        // reconnectionAttempts: 5,
-        // reconnectionDelay: 1000,
-      })
+      socketRef.current = io(process.env.NEXT_PUBLIC_SERVER_URL)
     }
     if (user?.email) {
       socketRef.current.emit("notify", user.email)
