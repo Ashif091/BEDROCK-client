@@ -75,6 +75,26 @@ body {
 .light-effect-l::before {
   left: -100px; 
 }
+/*  */
+.light-effect-r {
+  position: relative;
+}
+
+.light-effect-r::before{
+  content: '';
+  position: absolute;
+  top: 10rem;
+  width: 330px;
+  height: 330px; 
+  border-radius: 50%;
+  background: #7457EE;
+  filter: blur(140px); 
+  z-index: -1;
+}
+
+.light-effect-r::before {
+  right: -100px; 
+}
 
 
 .dark-scrollbar::-webkit-scrollbar {

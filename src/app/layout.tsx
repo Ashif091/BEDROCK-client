@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={twMerge(
-          "min-h-screen  bg-dark-blue overflow-x-hidden ",
+          "min-h-screen  bg-dark-blue overflow-x-hidden text-gray-50",
           inter.className
         )}
       >
