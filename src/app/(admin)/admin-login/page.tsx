@@ -44,7 +44,7 @@ const AdminLogin: React.FC = () => {
 
       if (res.status === 200) {
         toast.success("Login successful!")
-        router.push("/admin/dashboard")
+        router.push("/admin")
       }
     } catch (error: any) {
       if (error.response) {
