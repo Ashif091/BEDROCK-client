@@ -5,6 +5,7 @@ import * as d3 from "d3"
 import { useRouter } from "next/navigation"
 import { useDocumentStore } from "@/stores/documentStore"
 import { useWorkspaceStore } from "@/stores/workspaceStore"
+import { createAxiosInstance } from "@/app/utils/axiosInstance"
 
 interface NodeData {
   id: string
@@ -14,6 +15,15 @@ interface NodeData {
   y?: number
   fx?: number | null
   fy?: number | null
+}
+export interface Document {
+  _id?: string
+  workspaceId: string
+  title: string
+  content?: string
+  edges?: string[]
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 const Graph: React.FC = () => {
@@ -25,16 +35,22 @@ const Graph: React.FC = () => {
   ]
   const [nodes, setNodes] = useState<NodeData[]>(defaultNodes)
   const router = useRouter()
+  const api = createAxiosInstance();
 
   useEffect(() => {
-    const data: NodeData[] = documents
-      .filter((doc): doc is typeof doc & { _id: string } => doc._id !== undefined)
-      .map((doc) => ({
-        id: doc._id,
-        label: doc.title,
-        link: doc.edges || [],
-      }))
-    setNodes(data)
+    const node_fetch = async ()=>{
+      const Doc_data = await api.get(`/doc?workspaceId=${currentlyWorking?._id}`)
+      const datas:Document[] = Doc_data.data
+      const data: NodeData[] = datas
+        .filter((doc): doc is typeof doc & { _id: string } => doc._id !== undefined)
+        .map((doc) => ({
+          id: doc._id,
+          label: doc.title,
+          link: doc.edges || [],
+        }))
+      setNodes(data)
+    }
+    node_fetch()
   }, [documents])
 
   useEffect(() => {

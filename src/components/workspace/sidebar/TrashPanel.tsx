@@ -25,12 +25,12 @@ const TrashPanel: React.FC<TrashPanelProps> = ({isOpen, onClose}) => {
   const api = createAxiosInstance()
 
   useEffect(() => {
-    const fetchDocuments = async () => {
+    const fetchDocumentsFun = async () => {
       const res = await api.get(`/doc/${currentlyWorking?._id}/trash`)
       setTrashDocuments(res.data.trashedDocuments)
       setMounted(true)
     }
-    fetchDocuments()
+    fetchDocumentsFun()
   }, [documents])
   const searchDocuments = useCallback(
     throttle(async (query: string) => {
