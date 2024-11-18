@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react'
 interface PaymentSectionProps {
   plan: string
   price: number
+  availableWorkspace:number
 }
 interface PaymentConfirmationProps {
     paymentInfo: any
@@ -43,7 +44,7 @@ interface PaymentConfirmationProps {
     )
   }
 
-const CheckoutForm: React.FC<{ price: number,plan:string }> = ({ price,plan }) => {
+const CheckoutForm: React.FC<{ price: number,plan:string,availableWorkspace:number}> = ({ price,plan ,availableWorkspace}) => {
   const stripe = useStripe()
   const elements = useElements()
   const [error, setError] = useState<string | null>(null)
@@ -76,7 +77,7 @@ const CheckoutForm: React.FC<{ price: number,plan:string }> = ({ price,plan }) =
       }else if(result.paymentIntent){
         const confirmSubscription = async () => {
             try {
-              const res = await api.post('/auth/confirm-subscription', { price, plan,paymentIntent:result.paymentIntent})
+              const res = await api.post('/auth/confirm-subscription', { price, plan,paymentIntent:result.paymentIntent,availableWorkspace})
                 if(res.data){
                     if(res.data.userDta){
                         setUser(res.data.userDta)
@@ -119,7 +120,7 @@ const CheckoutForm: React.FC<{ price: number,plan:string }> = ({ price,plan }) =
   )
 }
 
-const PaymentSection: React.FC<PaymentSectionProps> = ({ plan, price }) => {
+const PaymentSection: React.FC<PaymentSectionProps> = ({ plan, price ,availableWorkspace}) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const { user } = useAuthStore()
   const api = createAxiosInstance()
@@ -144,7 +145,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ plan, price }) => {
       <p className="text-xl mb-8">Price: ${price} USD/year</p>
       {clientSecret ? (
         <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <CheckoutForm price={price} plan={plan} />
+          <CheckoutForm price={price} plan={plan} availableWorkspace={availableWorkspace} />
         </Elements>
       ) : (
         <div className="flex flex-col items-center justify-center">

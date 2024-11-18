@@ -1,9 +1,11 @@
 'use client'
 
 import { createAxiosInstance } from "@/app/utils/axiosInstance"
+import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Toaster, toast } from "sonner"
+import { LogOut } from 'lucide-react'
 
 interface Subscription {
   _id: string;
@@ -77,6 +79,18 @@ export default function AdminDashboard() {
       setIsLoading(false)
     }
   }
+  const handleLogout = async () => {
+    try {
+      const res = await api.get('/admin/logout')
+      if (res.status === 200) {
+        toast.success("Logged out successfully.")
+        router.push('/admin-login')
+      }
+    } catch (error) {
+      console.error("Logout error:", error)
+      toast.error("Failed to logout. Please try again.")
+    }
+  }
 
   if (isVerifying) {
     return (
@@ -96,7 +110,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen  p-8">
-      <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
+            <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Subscription Management</h1>
+        <Button onClick={handleLogout} variant="destructive">
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Button>
+      </div>
+
 
       {isLoading ? (
         <div className="text-center">Loading subscriptions...</div>

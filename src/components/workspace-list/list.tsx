@@ -79,10 +79,9 @@ const List = () => {
   }, [fetchWorkspaces])
   const handleWorkspaceClick = async (workspaceId: string) => {
     await setCurrentlyWorking(workspaceId)
-    router.push(`/workspace/${workspaceId}/home`)
+    router.push(`/workspace/${workspaceId}/graph`)
   }
   const addNewWorkspace = async () => {
-    // change logic accoding to the SubscriptionPlan
     try {
       const workspaceCount = await api.get("/auth/user/limit")
       if(!workspaceCount.data)return null

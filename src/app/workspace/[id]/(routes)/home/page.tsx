@@ -1,7 +1,16 @@
-const HomePage = () => {
-  return (
-    <div></div>
-  )
-}
+"use client";
 
-export default HomePage
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+const HomePage = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/workspace");
+  }, [router]);
+
+  return <div></div>;
+};
+
+export default HomePage;
