@@ -71,7 +71,7 @@ const WorkspaceForm: React.FC<WorkspaceFormProps> = ({isOpen, onClose}) => {
         {name},
       )
       addWorkspace(response.data)
-      router.push(`/workspace/${response.data._id}`)
+      router.push(`/workspace/${response.data._id}/graph`)
       onClose()
     } catch (error:any) {
         if (error.response?.data?.error) {
