@@ -3,13 +3,13 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useAuthStore } from "../../stores/authStore"
 
-// Define the props type for the wrapped component
+
 type WrappedComponentProps = Record<string, unknown>
 
 function NonAuth<P extends WrappedComponentProps>(
   WrappedComponent: React.ComponentType<P>
 ) {
-  // Create a new component
+
   const NonAuthComponent: React.FC<P> = (props) => {
     const [isClient, setIsClient] = useState(false)
     const { isAuthenticated } = useAuthStore()

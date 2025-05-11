@@ -20,6 +20,7 @@ interface AuthState {
   uploading: boolean
   progress: number
   role: string | null
+  hasHydrated: boolean
   login: (accessToken: string) => Promise<void>
   logout: () => void
   setAccessToken: (token: string) => void
@@ -29,6 +30,7 @@ interface AuthState {
   setRole: (role: string) => void
   setUploading: (uploading: boolean) => void
   setProgress: (progress: number) => void
+  setHasHydrated: (b: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -40,6 +42,8 @@ export const useAuthStore = create<AuthState>()(
       uploading: false,
       progress: 0,
       role: null,
+      hasHydrated: false,
+      setHasHydrated: (b) => set({ hasHydrated: b }),
       login: async (accessToken) => {
         try {
           console.log("zustand login", accessToken)
@@ -102,6 +106,9 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 )
