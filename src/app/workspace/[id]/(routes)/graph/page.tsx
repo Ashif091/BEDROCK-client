@@ -28,7 +28,6 @@ export interface Document {
 
 const Graph: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { documents } = useDocumentStore()
   const { currentlyWorking } = useWorkspaceStore()
   const defaultNodes: NodeData[] = [
     { id: "Untitled", label: "Untitled", link: [] },
@@ -36,8 +35,10 @@ const Graph: React.FC = () => {
   const [nodes, setNodes] = useState<NodeData[]>(defaultNodes)
   const router = useRouter()
   const api = createAxiosInstance();
-
+  const hasFetched = useRef(false)
   useEffect(() => {
+    if (hasFetched.current) return
+    hasFetched.current = true
     const node_fetch = async ()=>{
       const Doc_data = await api.get(`/doc?workspaceId=${currentlyWorking?._id}`)
       const datas:Document[] = Doc_data.data
@@ -51,7 +52,7 @@ const Graph: React.FC = () => {
       setNodes(data)
     }
     node_fetch()
-  }, [documents])
+  }, [])
 
   useEffect(() => {
     if (nodes.length === 0) return
@@ -113,6 +114,7 @@ const Graph: React.FC = () => {
       .data(nodes)
       .join("circle")
       .attr("r", 8)
+      .style("cursor", "pointer")
       .attr("fill", "#666")
       .call(drag(simulation) as unknown as (selection: d3.Selection<d3.BaseType, NodeData, SVGGElement, unknown>) => void)
       .on("mouseover", handleMouseOver)
