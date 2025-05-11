@@ -1,71 +1,68 @@
-"use client";
-import {
-  useBlockNoteEditor,
-  useComponentsContext,
-} from "@blocknote/react";
-import "@blocknote/mantine/style.css";
-import { useEffect, useState, useRef } from "react";
-import { createAxiosInstance } from "@/app/utils/axiosInstance";
-import { useWorkspaceStore } from "@/stores/workspaceStore";
-import { useDocumentStore } from "@/stores/documentStore";
+"use client"
+import {useBlockNoteEditor, useComponentsContext} from "@blocknote/react"
+import "@blocknote/mantine/style.css"
+import {useState} from "react"
+import {createAxiosInstance} from "@/app/utils/axiosInstance"
+import {useWorkspaceStore} from "@/stores/workspaceStore"
+import {useDocumentStore} from "@/stores/documentStore"
 
 export function LinkToButton() {
-  const editor: any = useBlockNoteEditor();
-  const Components = useComponentsContext()!;
-  const api = createAxiosInstance();
-  const [href, setHref] = useState<string>("/");
-  const { currentlyWorking } = useWorkspaceStore();
+  const editor: any = useBlockNoteEditor()
+  const Components = useComponentsContext()!
+  const api = createAxiosInstance()
+  const {currentlyWorking} = useWorkspaceStore()
   const {fetchDocuments} = useDocumentStore()
-  const [lastSegment, setLastSegment] = useState<string | null>(null);
-  const apiCalled = useRef(false); // Ref to prevent multiple calls
+  const [linkHref, setLinkHref] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const path = window.location.pathname;
-      const segment = path.split("/doc/")[1];
-      setLastSegment(segment);
+  const [lastSegment] = useState(() => {
+    if (typeof window === "undefined") return null
+    return window.location.pathname.split("/doc/")[1] || null
+  })
+
+  const handleClick = async () => {
+    const selection = editor.getSelection()
+    if (!selection) return
+    const text = editor.getSelectedText() || ""
+
+
+    if (linkHref) {
+      editor.insertInlineContent([
+        {type: "linkTo", props: {href: linkHref, text}},
+      ])
+      return
     }
-  }, []);
 
-  useEffect(() => {
-    if (apiCalled.current || !lastSegment || !editor) return;
-    apiCalled.current = true; 
 
-    const fetchHref = async () => {
-      try {
-        const response = await api.post("/doc/link_doc", {
-          workspaceId: currentlyWorking?._id,
-          title: editor.getSelectedText(),
-          Doc_Id: lastSegment,
-        });
-        fetchDocuments(currentlyWorking?._id as string)
+    if (!lastSegment || !currentlyWorking?._id) {
+      console.warn("Missing workspace or document context")
+      return
+    }
 
-        const linkId = response.data.document._id;
-        setHref(`/workspace/${currentlyWorking?._id}/doc/${linkId}`);
-      } catch (error) {
-        console.error("Failed to fetch link data:", error);
-      }
-    };
+    try {
+      const response = await api.post("/doc/link_doc", {
+        workspaceId: currentlyWorking._id,
+        title: text,
+        Doc_Id: lastSegment,
+      })
 
-    fetchHref();
-  }, [lastSegment, currentlyWorking, editor]);
+      const newId = response.data.document._id
+      const href = `/workspace/${currentlyWorking._id}/doc/${newId}`
 
+      setLinkHref(href)
+      fetchDocuments(currentlyWorking._id)
+
+
+      editor.insertInlineContent([{type: "linkTo", props: {href, text}}])
+    } catch (err) {
+      console.error("Failed to create link-doc:", err)
+    }
+  }
   return (
     <Components.FormattingToolbar.Button
       mainTooltip={"Insert Link To"}
-      onClick={() => {
-        const selection = editor.getSelection();
-        if (selection) {
-          const text = editor.getSelectedText();
-          if (href) {
-            editor.insertInlineContent([
-              { type: "linkTo", props: { href, text } },
-            ]);
-          }
-        }
-      }}
+      onClick={handleClick}
     >
       Link To
     </Components.FormattingToolbar.Button>
-  );
+  )
 }
