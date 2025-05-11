@@ -32,6 +32,7 @@ import {
   UnnestBlockButton,
 } from "@blocknote/react"
 import { LinkToButton } from "../ui/link-to-button"
+import { useRouter } from "next/navigation"
 
 type EditorProps = {
   doc: Y.Doc
@@ -53,20 +54,25 @@ const LinkTo = createReactInlineContentSpec(
     content: "none",
   },
   {
-    render: (props) => (
-      <a
-        href={props.inlineContent.props.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          color: "#7153e9",
-          textDecoration: "underline",
-          cursor: "pointer",
-        }}
-      >
-        {props.inlineContent.props.text || props.inlineContent.props.href}
-      </a>
-    ),
+    render: (props) => {
+      const router = useRouter();
+      const { href, text } = props.inlineContent.props;
+
+      return (
+        <span
+          onClick={() => {
+            router.push(href);
+          }}
+          style={{
+            color: "#7153e9",
+            textDecoration: "underline",
+            cursor: "pointer",
+          }}
+        >
+          {text || href}
+        </span>
+      );
+    },
   }
 )
 
