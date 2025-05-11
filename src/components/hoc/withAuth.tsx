@@ -21,7 +21,7 @@ function WithAuth<P extends WrappedComponentProps>(
       if (hasHydrated && !isAuthenticated) {
         router.push("/login")
       }
-    }, [isAuthenticated, router])
+    }, [isAuthenticated, router,hasHydrated])
 
     if (!isClient) {
       return null

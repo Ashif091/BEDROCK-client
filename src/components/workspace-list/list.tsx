@@ -10,7 +10,7 @@ import {useRouter} from "next/navigation"
 import {useAuthStore} from "@/stores/authStore"
 import {createAxiosInstance} from "@/app/utils/axiosInstance"
 import SubscriptionPlan from "../ui/subscription-plan"
-import { Toaster, toast } from 'sonner';
+import {Toaster, toast} from "sonner"
 interface Workspace {
   _id: string
   title: string
@@ -40,12 +40,19 @@ const List = () => {
   const router = useRouter()
   useEffect(() => {
     const fetchingSharedWorkspacesId = async () => {
-      const res = await api.get(`/workspace/user-attachment/${user?.email}`)
-      setSharedWorkspaceIds(res.data.sharedWorkspaces)
+      try {
+        const res = await api.get(`/workspace/user-attachment/${user?.email}`)
+
+        setSharedWorkspaceIds(res.data.sharedWorkspaces)
+      } catch (error: any) {
+        if (error.status === 401) {
+          logout()
+        }
+      }
     }
     fetchingSharedWorkspacesId()
   }, [])
-  // Fetch shared workspace details when IDs are updated
+
   useEffect(() => {
     const fetchingSharedWorkspaces = async () => {
       const fetchedWorkspaces: Workspace[] = []
@@ -84,19 +91,17 @@ const List = () => {
   const addNewWorkspace = async () => {
     try {
       const workspaceCount = await api.get("/auth/user/limit")
-      if(!workspaceCount.data)return null
+      if (!workspaceCount.data) return null
       if (workspaces.length < workspaceCount.data.workspaceCount) {
         setIsFormOpen(true)
-      } else if(!workspaceCount.data.status) {
+      } else if (!workspaceCount.data.status) {
         setIsSubscriptionOpen(true)
-      }else{
-        toast.warning('Your subscription limt exceeded')
+      } else {
+        toast.warning("Your subscription limt exceeded")
       }
     } catch (error) {
-      console.log("error with add workspace",error);
-      
+      console.log("error with add workspace", error)
     }
-
   }
   const renderWorkspaces = () => {
     if (isLoading) {
@@ -225,7 +230,7 @@ const List = () => {
             isOpen={isSubscriptionOpen}
             onClose={() => setIsSubscriptionOpen(false)}
           />
-        )}  
+        )}
       </div>
       <p className="text-xl font-alata my-2 opacity-75">Shared workspace</p>
 
