@@ -1,16 +1,9 @@
 "use client"
 
 import {useEffect, useState} from "react"
-import {
-  BlockNoteEditor,
-  BlockNoteSchema,
-  defaultInlineContentSpecs,
-} from "@blocknote/core"
+import {BlockNoteSchema, defaultInlineContentSpecs} from "@blocknote/core"
 import "@blocknote/core/fonts/inter.css"
-import {
-  useCreateBlockNote,
-  createReactInlineContentSpec,
-} from "@blocknote/react"
+import {useCreateBlockNote} from "@blocknote/react"
 import {BlockNoteView} from "@blocknote/mantine"
 import "@blocknote/mantine/style.css"
 import {LiveblocksYjsProvider} from "@liveblocks/yjs"
@@ -31,52 +24,14 @@ import {
   TextAlignButton,
   UnnestBlockButton,
 } from "@blocknote/react"
-import { LinkToButton } from "../ui/link-to-button"
-import { useRouter } from "next/navigation"
+import {LinkToButton} from "../ui/link-to-button"
+import {LinkTo} from "../ui/link-to-spec"
 
 type EditorProps = {
   doc: Y.Doc
   provider: any
 }
 
-// Custom LinkTo inline content
-const LinkTo = createReactInlineContentSpec(
-  {
-    type: "linkTo",
-    propSchema: {
-      href: {
-        default: "",
-      },
-      text: {
-        default: "",
-      },
-    },
-    content: "none",
-  },
-  {
-    render: (props) => {
-      const router = useRouter();
-      const { href, text } = props.inlineContent.props;
-
-      return (
-        <span
-          onClick={() => {
-            router.push(href);
-          }}
-          style={{
-            color: "#7153e9",
-            textDecoration: "underline",
-            cursor: "pointer",
-          }}
-        >
-          {text || href}
-        </span>
-      );
-    },
-  }
-)
-
-// Create a schema with our custom inline content
 const schema = BlockNoteSchema.create({
   inlineContentSpecs: {
     ...defaultInlineContentSpecs,
